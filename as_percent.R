@@ -1,7 +1,7 @@
 # as_percent converts decimals to percentages, rounding percentage to two decimal points, 
 # also ensuring that two decimal points are retained even if percentage point is whole number (e.g. 34.00%)
 as_percent <- function(decimal, digits = 2) {
-        str_c(format(round(decimal * 100, digits = digits), nsmall = 2), "%", sep = "")
+        str_trim(str_c(format(round(decimal * 100, digits = digits), nsmall = digits), "%", sep = ""))
 }
 
 # as_percent(.3595)
