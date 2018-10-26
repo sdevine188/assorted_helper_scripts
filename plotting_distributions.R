@@ -1,0 +1,42 @@
+library(tidyverse)
+library(ggridges)
+
+# https://cran.r-project.org/web/packages/ggridges/vignettes/introduction.html
+# https://ggplot2.tidyverse.org/reference/geom_rug.html
+# https://blog.rstudio.com/2016/08/31/forcats-0-1-0/
+
+# histogram
+starwars %>% ggplot(data = ., aes(x = mass)) + geom_histogram()
+
+# empirical cumulative density function
+starwars %>% ggplot(data = ., aes(x = mass)) + stat_ecdf()
+
+# boxplot
+map(.x = starwars, .f = ~ sum(is.na(.x)))
+starwars %>% ggplot(data = ., aes(y = mass)) + geom_boxplot()
+starwars %>% filter(mass < 1000) %>% ggplot(data = ., aes(y = mass)) + geom_boxplot()
+starwars %>% filter(mass < 1000) %>% ggplot(data = ., aes(y = mass, x = gender)) + geom_boxplot()
+starwars %>% filter(mass < 1000) %>% group_by(gender) %>% 
+        mutate(median_mass_by_gender = median(mass, na.rm = TRUE), minimum_mass_by_gender = min(mass, na.rm = TRUE)) %>% ungroup() %>%
+        # note that NA value for gender is placed last using fct_reorder, so change level to be "gender_na" so it reorders correctly
+        mutate(gender = ifelse(is.na(gender), "gender_na", gender), gender = factor(gender)) %>% 
+        ggplot(data = ., aes(y = mass, x = fct_reorder(gender, median_mass_by_gender))) +
+        # ggplot(data = ., aes(y = mass, x = fct_reorder(.f = gender, .x = minimum_mass_by_gender))) +
+        geom_boxplot()
+
+# density plot, with single facet
+starwars %>% ggplot(data = ., aes(x = mass)) + geom_density()
+starwars %>% ggplot(data = ., aes(x = mass)) + geom_density() + geom_rug()
+
+# density plot with multiple facets 
+starwars %>% filter(mass < 1000) %>% ggplot(data = ., aes(x = mass)) + geom_density() + facet_wrap(vars(gender))
+# (ggridges only works when y argument is provided, won't work if only x argument is provided)
+# starwars %>% filter(mass < 1000) %>% ggplot(data = ., aes(x = mass)) + geom_density_ridges() 
+starwars %>% filter(mass < 1000) %>% ggplot(data = ., aes(x = mass, y = gender)) + geom_density_ridges() 
+starwars %>% filter(mass < 1000) %>% ggplot(data = ., aes(x = mass, y = gender)) + geom_density_ridges(jittered_points = TRUE, position = position_raincloud()) 
+starwars %>% filter(mass < 1000) %>% ggplot(data = ., aes(x = mass, y = gender)) + 
+        geom_density_ridges(jittered_points = TRUE, point_shape = "|", position = position_points_jitter(width = 0.05, height = 0)) 
+
+
+
+
