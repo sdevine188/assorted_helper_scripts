@@ -16,12 +16,11 @@ map(.x = starwars, .f = ~ sum(is.na(.x)))
 starwars %>% ggplot(data = ., aes(y = mass)) + geom_boxplot()
 starwars %>% filter(mass < 1000) %>% ggplot(data = ., aes(y = mass)) + geom_boxplot()
 starwars %>% filter(mass < 1000) %>% ggplot(data = ., aes(y = mass, x = gender)) + geom_boxplot()
-starwars %>% filter(mass < 1000) %>% group_by(gender) %>% 
-        mutate(median_mass_by_gender = median(mass, na.rm = TRUE), minimum_mass_by_gender = min(mass, na.rm = TRUE)) %>% ungroup() %>%
+starwars %>% filter(mass < 1000) %>% 
         # note that NA value for gender is placed last using fct_reorder, so change level to be "gender_na" so it reorders correctly
         mutate(gender = ifelse(is.na(gender), "gender_na", gender), gender = factor(gender)) %>% 
-        ggplot(data = ., aes(y = mass, x = fct_reorder(gender, median_mass_by_gender))) +
-        # ggplot(data = ., aes(y = mass, x = fct_reorder(.f = gender, .x = minimum_mass_by_gender))) +
+        ggplot(data = ., aes(y = mass, x = fct_reorder(.f = gender, .x = mass, .fun = median))) +
+        # ggplot(data = ., aes(y = mass, x = fct_reorder(.f = gender, .x = mass, .fun = max))) +
         geom_boxplot()
 
 # density plot, with single facet
