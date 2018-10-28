@@ -1,9 +1,23 @@
 library(tidyverse)
 library(ggridges)
 
+options(scipen=999)
+
 # https://cran.r-project.org/web/packages/ggridges/vignettes/introduction.html
 # https://ggplot2.tidyverse.org/reference/geom_rug.html
 # https://blog.rstudio.com/2016/08/31/forcats-0-1-0/
+# https://ggplot2.tidyverse.org/reference/cut_interval.html
+
+
+# barplot
+starwars %>% ggplot(data = ., aes(x = mass)) + geom_bar()
+starwars %>% filter(mass < 1000) %>% 
+        mutate(mass_bin = cut_number(x = mass, n = 4)) %>% ggplot(data = ., aes(x = mass_bin)) + geom_bar()
+starwars %>% filter(mass < 1000) %>% 
+        mutate(mass_bin = cut_interval(x = mass, n = 10)) %>% ggplot(data = ., aes(x = mass_bin)) + geom_bar()
+starwars %>% filter(mass < 1000) %>% 
+        mutate(mass_bin = cut_width(x = mass, width = 100)) %>% ggplot(data = ., aes(x = mass_bin)) + geom_bar()
+
 
 # histogram
 starwars %>% ggplot(data = ., aes(x = mass)) + geom_histogram()
