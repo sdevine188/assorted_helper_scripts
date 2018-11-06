@@ -19,11 +19,22 @@ starwars %>% filter(mass < 1000) %>%
         mutate(mass_bin = cut_width(x = mass, width = 100)) %>% ggplot(data = ., aes(x = mass_bin)) + geom_bar()
 
 
+###################
+
+
 # histogram
 starwars %>% ggplot(data = ., aes(x = mass)) + geom_histogram()
 
+
+###########################
+
+
 # empirical cumulative density function
 starwars %>% ggplot(data = ., aes(x = mass)) + stat_ecdf()
+
+
+##########################
+
 
 # boxplot
 map(.x = starwars, .f = ~ sum(is.na(.x)))
@@ -37,6 +48,10 @@ starwars %>% filter(mass < 1000) %>%
         # ggplot(data = ., aes(y = mass, x = fct_reorder(.f = gender, .x = mass, .fun = max))) +
         geom_boxplot()
 
+
+#####################
+
+
 # density plot, with single facet
 starwars %>% ggplot(data = ., aes(x = mass)) + geom_density()
 starwars %>% ggplot(data = ., aes(x = mass)) + geom_density() + geom_rug()
@@ -46,7 +61,8 @@ starwars %>% filter(mass < 1000) %>% ggplot(data = ., aes(x = mass)) + geom_dens
 # (ggridges only works when y argument is provided, won't work if only x argument is provided)
 # starwars %>% filter(mass < 1000) %>% ggplot(data = ., aes(x = mass)) + geom_density_ridges() 
 starwars %>% filter(mass < 1000) %>% ggplot(data = ., aes(x = mass, y = gender)) + geom_density_ridges() 
-starwars %>% filter(mass < 1000) %>% ggplot(data = ., aes(x = mass, y = gender)) + geom_density_ridges(jittered_points = TRUE, position = position_raincloud()) 
+starwars %>% filter(mass < 1000) %>% ggplot(data = ., aes(x = mass, y = gender)) + 
+        geom_density_ridges(jittered_points = TRUE, position = position_raincloud()) 
 starwars %>% filter(mass < 1000) %>% ggplot(data = ., aes(x = mass, y = gender)) + 
         geom_density_ridges(jittered_points = TRUE, point_shape = "|", position = position_points_jitter(width = 0.05, height = 0)) 
 
