@@ -30,7 +30,14 @@ starwars %>% ggplot(data = ., aes(x = mass)) + geom_histogram()
 
 
 # empirical cumulative density function
+
+# numeric variable
 starwars %>% ggplot(data = ., aes(x = mass)) + stat_ecdf()
+
+# categorical variable
+starwars %>% group_by(species) %>% mutate(species_count = n_distinct(row_number())) %>% ungroup() %>% 
+        ggplot(data = ., aes(x = fct_reorder(.f = species, .x = species_count, .desc = TRUE))) + 
+        stat_ecdf(aes(group = 1))
 
 
 ##########################
