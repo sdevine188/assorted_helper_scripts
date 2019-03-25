@@ -1,5 +1,6 @@
 library(tidyverse)
 library(ggridges)
+library(skimr)
 
 options(scipen=999)
 
@@ -38,6 +39,15 @@ starwars %>% ggplot(data = ., aes(x = mass)) + stat_ecdf()
 starwars %>% group_by(species) %>% mutate(species_count = n_distinct(row_number())) %>% ungroup() %>% 
         ggplot(data = ., aes(x = fct_reorder(.f = species, .x = species_count, .desc = TRUE))) + 
         stat_ecdf(aes(group = 1))
+
+
+##########################
+
+
+# summarizing quantiles
+starwars %>% select(mass) %>% skim()
+starwars %>% summarize(quantiles = list(enframe(quantile(x = mass, probs = c(0, .25, .5, .75, 1), na.rm = TRUE)))) %>%
+        unnest()
 
 
 ##########################
