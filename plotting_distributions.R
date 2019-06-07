@@ -69,6 +69,25 @@ starwars %>% filter(mass < 1000) %>%
 #####################
 
 
+# violin plot 
+
+# drawn w quantiles
+starwars %>% filter(mass < 1000) %>% 
+        # note that NA value for gender is placed last using fct_reorder, so change level to be "gender_na" so it reorders correctly
+        mutate(gender = ifelse(is.na(gender), "gender_na", gender), gender = factor(gender)) %>% 
+        ggplot(data = ., aes(x = gender, y = mass)) + geom_violin(draw_quantiles = c(0.25, 0.5, 0.75))
+
+# drawn w points
+starwars %>% filter(mass < 1000) %>% 
+        # note that NA value for gender is placed last using fct_reorder, so change level to be "gender_na" so it reorders correctly
+        mutate(gender = ifelse(is.na(gender), "gender_na", gender), gender = factor(gender)) %>% 
+        ggplot(data = ., aes(x = gender, y = mass)) + geom_violin(draw_quantiles = c(0.25, 0.5, 0.75)) +
+        geom_violin() + geom_jitter(height = 0, width = 0.1)
+
+
+#####################
+
+
 # density plot, with single facet
 starwars %>% ggplot(data = ., aes(x = mass)) + geom_density()
 starwars %>% ggplot(data = ., aes(x = mass)) + geom_density() + geom_rug()
