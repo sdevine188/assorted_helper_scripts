@@ -9,6 +9,8 @@ library(tidyverse)
 library(attempt)
 
 # create add_group_index function
+# this avoids group_indices() issue of creating indices based on alphabetical ordering of group var, not on the order data appears
+# also, avoids group_indices issue of not being able to handle grouped tbls without extra workarounds with group_map etc
 add_group_index <- function(data, group) {
         
         # handle group argument, depending on whether it's passed as string, bare variable, or vars()
@@ -65,7 +67,7 @@ add_group_index <- function(data, group) {
         # handle ungrouped tbl
         if(is.null(data %>% groups())) {
                 
-                # get group index based on order that group values appear in data, left_join group index with data, then return it as vector
+                # get group index based on order that group values appear in data, left_join group index with data, then return as a tbl
                 return(data %>% distinct(!!!syms(group)) %>% mutate(group_index = row_number()) %>% left_join(data, ., by = group)) 
         }
         
@@ -78,12 +80,13 @@ add_group_index <- function(data, group) {
                 
                 # get grouping_var from grouped tbl
                 grouping_var <- data %>% groups() %>% map(.x = ., .f = ~ as_label(.x)) %>% unlist()
-                
-                # get grouping_var_syms 
-                grouping_var_syms <- syms(grouping_var)
                
-                return(data %>% select(!!!grouping_var_syms, !!!group) %>% group_split() %>%
-                        map_dfr(.x = ., .f = ~ .x %>% distinct(!!!syms(grouping_var_syms), !!!syms(group)) %>% mutate(group_index = row_number())) %>%
+                # select just grouping_var before splitting out groups to reduce compute time,
+                # then get group index based on order that group values appear in data, left_join group index with data,
+                # and return as a tbl
+                return(data %>% select(!!!syms(grouping_var), !!!syms(group)) %>% group_split() %>%
+                        map_dfr(.x = ., .f = ~ .x %>% distinct(!!!syms(grouping_var), !!!syms(group)) %>% 
+                                        mutate(group_index = row_number())) %>%
                                left_join(data, ., by = c(grouping_var, group)))
         }
         
@@ -107,7 +110,8 @@ add_group_index <- function(data, group) {
 # starwars %>% add_group_index(group = "species")
 # starwars %>% add_group_index(group = species)
 # starwars %>% add_group_index(group = vars(species, gender))
-# starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE)) %>% 
+# 
+# starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE)) %>%
 #         group_by(movie) %>% add_group_index(group = species) %>% print(n = 15)
 # starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE),
 #                     good_or_bad = sample(x = c("good", "bad"), size = nrow(.), replace = TRUE)) %>%
@@ -117,4 +121,62 @@ add_group_index <- function(data, group) {
 #         group_by(movie, gender) %>% add_group_index(group = vars(species, good_or_bad)) %>% print(n = 15)
 
 
+###############################################################################################
+
+
+# # note that using match/unique workaround for this problem is slower than add_group_index
+# # see preserve_order_for_group_indices.R
+# 
+# # create preserve_order_for_group_indices function
+# preserve_order_for_group_indices <- function(x) {
+#         match(x, unique(x))
+# }
+# 
+# # works on ungrouped tbl
+# df %>% mutate(group_index = group_indices(., category) %>% preserve_order_for_group_indices())
+# 
+# # but group_indices() doesn't work on grouped tbl directly
+# starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE)) %>%
+#         group_by(movie) %>% mutate(group_index = group_indices(., species) %>% preserve_order_for_group_indices())
+# 
+# # need to use group_map with grouped_tbl, 
+# # and some part of the necessary reshaping (e.g. enframe, unnest, etc) with this method makes is slower than add_group_index
+# 
+# 
+# ##################
+# 
+# 
+# # conduct speed test
+# 
+# # create wrapper functions for speed test
+# test_group_indices <- function(.x) {
+#         set.seed(123)
+#         starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE), row_number = row_number()) %>%
+#                 group_by(movie) %>% 
+#                 group_map(.f = ~ mutate(., group_index = group_indices(., species) %>% preserve_order_for_group_indices()),
+#                           keep = TRUE) %>% 
+#                 enframe() %>% select(value) %>% unnest(value) %>% arrange(row_number) %>% select(- row_number) %>% group_by(movie) 
+# }
+# test_group_indices()
+# 
+# test_add_group_index <- function(.x) {
+#         set.seed(123)
+#         starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE)) %>%
+#                 group_by(movie) %>%
+#                 add_group_index(group = species)
+# }
+# test_add_group_index()
+# 
+# # confirm identical output
+# identical(test_group_indices(), test_add_group_index())
+# 
+# # test
+# # result: add_group_index is significantly faster
+# tic()
+# walk(.x = 1:100, .f = test_group_indices)
+# toc()
+# 
+# tic()
+# walk(.x = 1:100, .f = test_add_group_index)
+# toc()
 
