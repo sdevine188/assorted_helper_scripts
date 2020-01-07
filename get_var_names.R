@@ -67,6 +67,8 @@ starwars %>% select(mass, height)
 # this works, because raw code is running in same environment as rest of the function
 add_one_w_raw_code <- function(data, var_input) {
 
+        # get var_names from var_inputs
+        
         # handle single bare variables passed as var_input
         # the first negated str_detect condition will return TRUE if var_input is not a character
         # the second negated str_detect condition returns TRUE if var_input deparsed isn't wrapped in "vars()"
@@ -89,6 +91,10 @@ add_one_w_raw_code <- function(data, var_input) {
                 var_names <- var_input
         }
 
+        
+        ##################################################################################
+        
+        
         # add one
         return(data %>% select(!!!syms(var_names)) %>% map_dfc(.x = ., .f = ~ .x + 1))
 }
