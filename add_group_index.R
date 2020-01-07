@@ -13,52 +13,29 @@ library(attempt)
 # also, avoids group_indices issue of not being able to handle grouped tbls without extra workarounds with group_map etc
 add_group_index <- function(data, group) {
         
-        # handle group argument, depending on whether it's passed as string, bare variable, or vars()
+        # get var_names from var_inputs
         
-        # will pass row to deparse(substitute()) to see if it's a single bare variable
-        # if so, will overwrite row with the deparsed string
-        # note this handler won't allow passing multiple bare variables in c()
-        # if you want multiple bar variables, pass into vars
-        if(deparse(substitute(group)) %in% names(data)) {
+        # handle single bare variables passed as group
+        # the first negated str_detect condition will return TRUE if group is not a character
+        # the second negated str_detect condition returns TRUE if group deparsed isn't wrapped in "vars()"
+        if((!(str_detect(string = deparse(substitute(group)), pattern = regex("^\".*\"$|^c\\(\".*\"\\)$")))) &
+           (!(str_detect(string = deparse(substitute(group)), pattern = regex("^vars\\(.*\\)$"))))) {
                 
                 group <- deparse(substitute(group))
-        } 
-        
-        # handle row if it's passed using quo(), quos(), or vars(), including tidyselect helpers
-        # would be nice to issue custom error when tidyselectors have ONLY invalid vars
-        # default is to give uninformative error message "Error in -x : invalid argument to unary operator"
-        # can use attempt's try_catch, with custom if()/str_replace function to micro-handle different errors
-        if("quosure" %in% class(group) | "quosures" %in% class(group)) {
+        } else
                 
-                # handle bare variables passed to vars() that are not found in data
-                try_catch(expr = group_placeholder <- data %>% ungroup() %>% select(!!!group) %>% names(), .e = function(e) {
+                # handle group if it's passed using quo(), quos(), or vars(), including tidyselect helpers
+                if((!(str_detect(string = deparse(substitute(group)), pattern = regex("^\".*\"$|^c\\(\".*\"\\)$")))) &
+                   (str_detect(string = deparse(substitute(group)), pattern = regex("^vars\\(.*\\)$")))) {
                         
-                        if(str_detect(string = as.character(e), 
-                                      pattern = regex("object .* not found\n"))) {
+                        group <- group %>% map(.x = ., .f = as_label) %>% unlist()
+                } else
+                        
+                        # handle group as a string
+                        if(class(group) == "character") {
                                 
-                                var_not_found <- str_extract(string = as.character(e), 
-                                                             pattern = regex('object .* not found\n$')) %>% 
-                                        str_replace(string = ., pattern = "object ", replacement = "") %>% 
-                                        str_replace(string = ., pattern = " not found\n$", 
-                                                    replacement = "")
-                                
-                                stop(str_glue("The following variable passed to the group ",
-                                              "argument is not found in the data: ",
-                                              "{var_not_found}"))
-                        } 
-                })
-                
-                # handle cases where all tidyselect helpers are not found in data
-                # when this is the case, group is set as character(0)
-                if(length(data %>% ungroup() %>% select(!!!group) %>% names()) == 0) {
-                        stop(str_glue("The following tidyselect helpers ",
-                                      "passed to the group argument do not match to any variables found in the data: ",
-                                      "{str_c((map(.x = group, .f = as_label) %>% unlist()), collapse = ', ')}"))
-                }
-                
-                # if no errors have been raised, overwrite group with group_placeholder
-                group <- group_placeholder
-        }
+                                group <- group
+                        }
         
         
         ################################################################################################################################
@@ -67,7 +44,6 @@ add_group_index <- function(data, group) {
         # handle ungrouped tbl
         if(is.null(data %>% groups())) {
                 
-                # get group index based on order that group values appear in data, left_join group index with data, then return as a tbl
                 return(data %>% distinct(!!!syms(group)) %>% mutate(group_index = row_number()) %>% left_join(data, ., by = group)) 
         }
         
@@ -80,33 +56,21 @@ add_group_index <- function(data, group) {
                 
                 # get grouping_var from grouped tbl
                 grouping_var <- data %>% groups() %>% map(.x = ., .f = ~ as_label(.x)) %>% unlist()
-               
+                
                 # select just grouping_var before splitting out groups to reduce compute time,
                 # then get group index based on order that group values appear in data, left_join group index with data,
                 # and return as a tbl
-                return(data %>% select(!!!syms(grouping_var), !!!syms(group)) %>% group_split() %>%
-                        map_dfr(.x = ., .f = ~ .x %>% distinct(!!!syms(grouping_var), !!!syms(group)) %>% 
-                                        mutate(group_index = row_number())) %>%
+                return(data %>% distinct(!!!syms(group)) %>% mutate(group_index = row_number()) %>% ungroup() %>% 
                                left_join(data, ., by = c(grouping_var, group)))
         }
         
 }
 
 
-#################
+#####################
 
 
-# test add_group_index()
-# data <- starwars
-# group <- "species"
-# group <- vars("species")
-# group <- vars(species)
-# group <- vars(species, gender)
-
-
-###############
-
-
+# # test add_group_index()
 # starwars %>% add_group_index(group = "species")
 # starwars %>% add_group_index(group = species)
 # starwars %>% add_group_index(group = vars(species, gender))
@@ -115,10 +79,98 @@ add_group_index <- function(data, group) {
 #         group_by(movie) %>% add_group_index(group = species) %>% print(n = 15)
 # starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE),
 #                     good_or_bad = sample(x = c("good", "bad"), size = nrow(.), replace = TRUE)) %>%
-#         group_by(movie) %>% add_group_index(group = vars(species, good_or_bad)) %>% print(n = 15)
+#         group_by(movie) %>% add_group_index(group = vars(species, good_or_bad)) %>% 
+#         select(movie, species, good_or_bad, group_index) %>% print(n = 15)
 # starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE),
 #                     good_or_bad = sample(x = c("good", "bad"), size = nrow(.), replace = TRUE)) %>%
-#         group_by(movie, gender) %>% add_group_index(group = vars(species, good_or_bad)) %>% print(n = 15)
+#         group_by(movie, gender) %>% add_group_index(group = vars(species, good_or_bad)) %>% 
+#         select(movie, gender, species, good_or_bad, group_index) %>% print(n = 15)
+
+
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+
+
+# # create add_group_index_2() using group_split()
+# # result: this version is slower
+# add_group_index_2 <- function(data, group) {
+#         
+#         # get var_names from var_inputs
+#         
+#         # handle single bare variables passed as group
+#         # the first negated str_detect condition will return TRUE if group is not a character
+#         # the second negated str_detect condition returns TRUE if group deparsed isn't wrapped in "vars()"
+#         if((!(str_detect(string = deparse(substitute(group)), pattern = regex("^\".*\"$|^c\\(\".*\"\\)$")))) &
+#            (!(str_detect(string = deparse(substitute(group)), pattern = regex("^vars\\(.*\\)$"))))) {
+#                 
+#                 group <- deparse(substitute(group))
+#         } else
+#                 
+#                 # handle group if it's passed using quo(), quos(), or vars(), including tidyselect helpers
+#                 if((!(str_detect(string = deparse(substitute(group)), pattern = regex("^\".*\"$|^c\\(\".*\"\\)$")))) &
+#                    (str_detect(string = deparse(substitute(group)), pattern = regex("^vars\\(.*\\)$")))) {
+#                         
+#                         group <- group %>% map(.x = ., .f = as_label) %>% unlist()
+#                 } else
+#                         
+#                         # handle group as a string
+#                         if(class(group) == "character") {
+#                                 
+#                                 group <- group
+#                         }
+#         
+#         
+#         ################################################################################################################################
+#         
+#         
+#         # handle ungrouped tbl
+#         if(is.null(data %>% groups())) {
+#                 
+#                 # get group index based on order that group values appear in data, left_join group index with data, then return as a tbl
+#                 return(data %>% distinct(!!!syms(group)) %>% mutate(group_index = row_number()) %>% left_join(data, ., by = group)) 
+#         }
+#         
+#         
+#         #######################
+#         
+#         
+#         # handle grouped tbl
+#         if(!(is.null(data %>% groups()))) {
+#                 
+#                 # get grouping_var from grouped tbl
+#                 grouping_var <- data %>% groups() %>% map(.x = ., .f = ~ as_label(.x)) %>% unlist()
+#                 
+#                 # select just grouping_var before splitting out groups to reduce compute time,
+#                 # then get group index based on order that group values appear in data, left_join group index with data,
+#                 # and return as a tbl
+#                 return(data %>% select(!!!syms(grouping_var), !!!syms(group)) %>% group_split() %>%
+#                                map_dfr(.x = ., .f = ~ .x %>% distinct(!!!syms(grouping_var), !!!syms(group)) %>% 
+#                                                mutate(group_index = row_number())) %>%
+#                                left_join(data, ., by = c(grouping_var, group)))
+#         }
+#         
+# }
+
+
+##################################
+
+
+# test add_group_index_2()
+# starwars %>% add_group_index_2(group = "species")
+# starwars %>% add_group_index_2(group = species)
+# starwars %>% add_group_index_2(group = vars(species, gender))
+# 
+# starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE)) %>%
+#         group_by(movie) %>% add_group_index_2(group = species) %>% print(n = 15)
+# starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE),
+#                     good_or_bad = sample(x = c("good", "bad"), size = nrow(.), replace = TRUE)) %>%
+#         group_by(movie) %>% add_group_index_2(group = vars(species, good_or_bad)) %>% 
+#         select(movie, species, good_or_bad, group_index) %>% print(n = 15)
+# starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE),
+#                     good_or_bad = sample(x = c("good", "bad"), size = nrow(.), replace = TRUE)) %>%
+#         group_by(movie, gender) %>% add_group_index_2(group = vars(species, good_or_bad)) %>% 
+#         select(movie, gender, species, good_or_bad, group_index) %>% print(n = 15)
 
 
 ###############################################################################################
@@ -139,23 +191,23 @@ add_group_index <- function(data, group) {
 # starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE)) %>%
 #         group_by(movie) %>% mutate(group_index = group_indices(., species) %>% preserve_order_for_group_indices())
 # 
-# # need to use group_map with grouped_tbl, 
+# # need to use group_map with grouped_tbl,
 # # and some part of the necessary reshaping (e.g. enframe, unnest, etc) with this method makes is slower than add_group_index
-# 
-# 
-# ##################
-# 
-# 
-# # conduct speed test
-# 
+
+
+##################
+
+
+# conduct speed test
+
 # # create wrapper functions for speed test
 # test_group_indices <- function(.x) {
 #         set.seed(123)
 #         starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE), row_number = row_number()) %>%
-#                 group_by(movie) %>% 
+#                 group_by(movie) %>%
 #                 group_map(.f = ~ mutate(., group_index = group_indices(., species) %>% preserve_order_for_group_indices()),
-#                           keep = TRUE) %>% 
-#                 enframe() %>% select(value) %>% unnest(value) %>% arrange(row_number) %>% select(- row_number) %>% group_by(movie) 
+#                           keep = TRUE) %>%
+#                 enframe() %>% select(value) %>% unnest(value) %>% arrange(row_number) %>% select(- row_number) %>% group_by(movie)
 # }
 # test_group_indices()
 # 
@@ -167,16 +219,31 @@ add_group_index <- function(data, group) {
 # }
 # test_add_group_index()
 # 
+# test_add_group_index_2 <- function(.x) {
+#         set.seed(123)
+#         starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE)) %>%
+#                 group_by(movie) %>%
+#                 add_group_index_2(group = species)
+# }
+# test_add_group_index_2()
+# 
 # # confirm identical output
 # identical(test_group_indices(), test_add_group_index())
+# identical(test_group_indices(), test_add_group_index_2())
 # 
 # # test
 # # result: add_group_index is significantly faster
+# library(tictoc)
+# 
 # tic()
-# walk(.x = 1:100, .f = test_group_indices)
+# walk(.x = 1:1000, .f = test_group_indices)
 # toc()
 # 
 # tic()
-# walk(.x = 1:100, .f = test_add_group_index)
+# walk(.x = 1:1000, .f = test_add_group_index)
+# toc()
+# 
+# tic()
+# walk(.x = 1:1000, .f = test_add_group_index_2)
 # toc()
 
