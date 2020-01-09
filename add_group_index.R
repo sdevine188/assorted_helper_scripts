@@ -6,35 +6,33 @@
 
 
 library(tidyverse)
-library(attempt)
 
 # create add_group_index function
 # this avoids group_indices() issue of creating indices based on alphabetical ordering of group var, not on the order data appears
 # also, avoids group_indices issue of not being able to handle grouped tbls without extra workarounds with group_map etc
-add_group_index <- function(data, group) {
+add_group_index <- function(data, vars, name = NULL) {
         
-        # get var_names from var_inputs
+        # handle vars arg, converting input to strings
         
-        # handle single bare variables passed as group
-        # the first negated str_detect condition will return TRUE if group is not a character
-        # the second negated str_detect condition returns TRUE if group deparsed isn't wrapped in "vars()"
-        if((!(str_detect(string = deparse(substitute(group)), pattern = regex("^\".*\"$|^c\\(\".*\"\\)$")))) &
-           (!(str_detect(string = deparse(substitute(group)), pattern = regex("^vars\\(.*\\)$"))))) {
+        # handle single bare variables passed as vars
+        # the first negated str_detect condition will return TRUE if vars is not a character
+        # the second negated str_detect condition returns TRUE if vars deparsed isn't wrapped in "vars()"
+        if((!(str_detect(string = deparse(substitute(vars)), pattern = regex("^\".*\"$|^c\\(\".*\"\\)$")))) &
+           (!(str_detect(string = deparse(substitute(vars)), pattern = regex("^vars\\(.*\\)$"))))) {
                 
-                group <- deparse(substitute(group))
+                vars <- deparse(substitute(vars))
         } else
                 
-                # handle group if it's passed using quo(), quos(), or vars(), including tidyselect helpers
-                if((!(str_detect(string = deparse(substitute(group)), pattern = regex("^\".*\"$|^c\\(\".*\"\\)$")))) &
-                   (str_detect(string = deparse(substitute(group)), pattern = regex("^vars\\(.*\\)$")))) {
+                # handle vars if it's passed using quo(), quos(), or vars(), including tidyselect helpers
+                if("quosure" %in% class(vars) | "quosures" %in% class(vars)) {
                         
-                        group <- group %>% map(.x = ., .f = as_label) %>% unlist()
+                        vars <- vars %>% map(.x = ., .f = as_label) %>% unlist()
                 } else
                         
-                        # handle group as a string
-                        if(class(group) == "character") {
+                        # handle vars as a string
+                        if(class(vars) == "character") {
                                 
-                                group <- group
+                                vars <- vars
                         }
         
         
@@ -44,7 +42,14 @@ add_group_index <- function(data, group) {
         # handle ungrouped tbl
         if(is.null(data %>% groups())) {
                 
-                return(data %>% distinct(!!!syms(group)) %>% mutate(group_index = row_number()) %>% left_join(data, ., by = group)) 
+                if(is.null(name)) {
+                        return(data %>% distinct(!!!syms(vars)) %>% mutate(group_index = row_number()) %>% left_join(data, ., by = vars)) 
+                }
+                
+                if(!(is.null(name))) {
+                        return(data %>% distinct(!!!syms(vars)) %>% mutate(group_index = row_number()) %>% left_join(data, ., by = vars) %>%
+                                       rename(!!sym(name) := group_index)) 
+                }
         }
         
         
@@ -59,9 +64,18 @@ add_group_index <- function(data, group) {
                 
                 # select just grouping_var before splitting out groups to reduce compute time,
                 # then get group index based on order that group values appear in data, left_join group index with data,
-                # and return as a tbl
-                return(data %>% distinct(!!!syms(group)) %>% mutate(group_index = row_number()) %>% ungroup() %>% 
-                               left_join(data, ., by = c(grouping_var, group)))
+                # and return as an ungrouped tbl
+                
+                if(is.null(name)) {
+                        return(data %>% distinct(!!!syms(vars)) %>% mutate(group_index = row_number()) %>% ungroup() %>% 
+                                       left_join(data, ., by = c(grouping_var, vars))) 
+                }
+                
+                if(!(is.null(name))) {
+                        return(data %>% distinct(!!!syms(vars)) %>% mutate(group_index = row_number()) %>% ungroup() %>% 
+                                       left_join(data, ., by = c(grouping_var, vars)) %>% rename(!!sym(name) := group_index)) 
+                }
+                
         }
         
 }
@@ -70,21 +84,22 @@ add_group_index <- function(data, group) {
 #####################
 
 
-# # test add_group_index()
-# starwars %>% add_group_index(group = "species")
-# starwars %>% add_group_index(group = species)
-# starwars %>% add_group_index(group = vars(species, gender))
-# 
-# starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE)) %>%
-#         group_by(movie) %>% add_group_index(group = species) %>% print(n = 15)
-# starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE),
-#                     good_or_bad = sample(x = c("good", "bad"), size = nrow(.), replace = TRUE)) %>%
-#         group_by(movie) %>% add_group_index(group = vars(species, good_or_bad)) %>% 
-#         select(movie, species, good_or_bad, group_index) %>% print(n = 15)
-# starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE),
-#                     good_or_bad = sample(x = c("good", "bad"), size = nrow(.), replace = TRUE)) %>%
-#         group_by(movie, gender) %>% add_group_index(group = vars(species, good_or_bad)) %>% 
-#         select(movie, gender, species, good_or_bad, group_index) %>% print(n = 15)
+# test add_group_index()
+starwars %>% add_group_index(vars = "species")
+starwars %>% add_group_index(vars = species)
+starwars %>% add_group_index(vars = vars(species, gender))
+
+starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE)) %>%
+        group_by(movie) %>% add_group_index(vars = species, name = "my_group_index") %>% 
+        select(movie, species, my_group_index) %>% print(n = 15)
+starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE),
+                    good_or_bad = sample(x = c("good", "bad"), size = nrow(.), replace = TRUE)) %>%
+        group_by(movie) %>% add_group_index(vars = vars(species, good_or_bad), name = "my_group_index") %>%
+        select(movie, species, good_or_bad, my_group_index) %>% print(n = 15)
+starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE),
+                    good_or_bad = sample(x = c("good", "bad"), size = nrow(.), replace = TRUE)) %>%
+        group_by(movie, gender) %>% add_group_index(vars = vars(species, good_or_bad), name = "my_group_index") %>%
+        select(movie, gender, species, good_or_bad, my_group_index) %>% print(n = 15)
 
 
 ##############################################################################################################################
