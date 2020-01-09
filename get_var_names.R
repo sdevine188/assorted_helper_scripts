@@ -8,7 +8,7 @@ library(attempt)
 # due to how quosures are dependent on their environment
 add_one_w_raw_code <- function(data, var_input) {
 
-        # get var_names from var_inputs
+        # get var_names from var_input
         
         # handle single bare variables passed as var_input
         # the first negated str_detect condition will return TRUE if var_input is not a character
@@ -20,8 +20,7 @@ add_one_w_raw_code <- function(data, var_input) {
         } else
 
         # handle var_input if it's passed using quo(), quos(), or vars(), including tidyselect helpers
-        if((!(str_detect(string = deparse(substitute(var_input)), pattern = regex("^\".*\"$|^c\\(\".*\"\\)$")))) &
-           (str_detect(string = deparse(substitute(var_input)), pattern = regex("^vars\\(.*\\)$")))) {
+        if("quosure" %in% class(var_input) | "quosures" %in% class(var_input)) {
 
                 var_names <- var_input %>% map(.x = ., .f = as_label) %>% unlist()
         } else
@@ -61,8 +60,7 @@ get_var_names <- function(var_input) {
         } else
                 
                 # handle var_input if it's passed using quo(), quos(), or vars(), including tidyselect helpers
-                if((!(str_detect(string = deparse(substitute(var_input)), pattern = regex("^\".*\"$|^c\\(\".*\"\\)$")))) &
-                   (str_detect(string = deparse(substitute(var_input)), pattern = regex("^vars\\(.*\\)$")))) {
+                if("quosure" %in% class(var_input) | "quosures" %in% class(var_input)) {
                         
                         return(var_input %>% map(.x = ., .f = as_label) %>% unlist())
                 } else
