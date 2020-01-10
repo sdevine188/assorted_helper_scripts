@@ -8,8 +8,7 @@ add_dummies <- function(data, vars, drop_vars = FALSE) {
         # handle single bare variables passed as vars
         # the first negated str_detect condition will return TRUE if vars is not a character
         # the second negated str_detect condition returns TRUE if vars deparsed isn't wrapped in "vars()"
-        if((!(str_detect(string = deparse(substitute(vars)), pattern = regex("^\".*\"$|^c\\(\".*\"\\)$")))) &
-           (!(str_detect(string = deparse(substitute(vars)), pattern = regex("^vars\\(.*\\)$"))))) {
+        if(deparse(substitute(vars)) %in% names(data)) {
                 
                 var_names <- deparse(substitute(vars))
         } else
