@@ -1,7 +1,7 @@
 library(tidyverse)
 
 # create add_dummies function
-add_dummies <- function(data, vars, keep_vars = TRUE) {
+add_dummies <- function(data, vars, drop_vars = FALSE) {
         
         # get var_names from vars
         
@@ -93,13 +93,13 @@ add_dummies <- function(data, vars, keep_vars = TRUE) {
         #####################
         
         
-        # if keep_vars = TRUE, bind vars_dummy_tbl with data and return
-        if(keep_vars == TRUE) {
+        # if drop_vars = TRUE, bind vars_dummy_tbl with data and return
+        if(drop_vars == FALSE) {
                 return(bind_cols(data, vars_dummy_tbl))
         }
         
-        # if keep_vars = TRUE, bind vars_dummy_tbl with data and return
-        if(keep_vars == FALSE) {
+        # if drop_vars = TRUE, bind vars_dummy_tbl with data and return
+        if(drop_vars == TRUE) {
                 return(bind_cols(data, vars_dummy_tbl) %>% select(-c(!!!syms(var_names))))
         }
         
@@ -111,12 +111,12 @@ add_dummies <- function(data, vars, keep_vars = TRUE) {
 
 
 # # test add_dummies()
-# starwars %>% add_dummies(vars = "gender") %>% glimpse()
-# starwars %>% add_dummies(vars = "gender") %>% select(starts_with("gender"))
-# starwars %>% add_dummies(vars = gender) %>% select(starts_with("gender"))
-# starwars %>% add_dummies(vars = vars(gender)) %>% select(starts_with("gender"))
-# starwars %>% add_dummies(vars = vars(gender, species)) %>% select(starts_with("gender"), starts_with("species"))
-# starwars %>% add_dummies(vars = vars(gender, species), keep_vars = FALSE) %>% 
-#         select(starts_with("gender"), starts_with("species"))
+starwars %>% add_dummies(vars = "gender") %>% glimpse()
+starwars %>% add_dummies(vars = "gender") %>% select(starts_with("gender"))
+starwars %>% add_dummies(vars = gender) %>% select(starts_with("gender"))
+starwars %>% add_dummies(vars = vars(gender)) %>% select(starts_with("gender"))
+starwars %>% add_dummies(vars = vars(gender, species)) %>% select(starts_with("gender"), starts_with("species"))
+starwars %>% add_dummies(vars = vars(gender, species), drop_vars = TRUE) %>%
+        select(starts_with("gender"), starts_with("species"))
 
 
