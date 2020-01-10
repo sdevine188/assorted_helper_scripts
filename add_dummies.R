@@ -111,12 +111,12 @@ add_dummies <- function(data, vars, drop_vars = FALSE) {
 
 
 # # test add_dummies()
-starwars %>% add_dummies(vars = "gender") %>% glimpse()
-starwars %>% add_dummies(vars = "gender") %>% select(starts_with("gender"))
-starwars %>% add_dummies(vars = gender) %>% select(starts_with("gender"))
-starwars %>% add_dummies(vars = vars(gender)) %>% select(starts_with("gender"))
-starwars %>% add_dummies(vars = vars(gender, species)) %>% select(starts_with("gender"), starts_with("species"))
-starwars %>% add_dummies(vars = vars(gender, species), drop_vars = TRUE) %>%
-        select(starts_with("gender"), starts_with("species"))
+# starwars %>% add_dummies(vars = "gender") %>% glimpse()
+# starwars %>% add_dummies(vars = "gender") %>% select(starts_with("gender"))
+# starwars %>% add_dummies(vars = gender) %>% select(starts_with("gender"))
+# starwars %>% add_dummies(vars = vars(gender)) %>% select(starts_with("gender"))
+# starwars %>% add_dummies(vars = vars(gender, species)) %>% select(starts_with("gender"), starts_with("species"))
+# starwars %>% add_dummies(vars = vars(gender, species), drop_vars = TRUE) %>%
+#         select(starts_with("gender"), starts_with("species"))
 
 
