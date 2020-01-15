@@ -16,17 +16,15 @@ add_one_w_raw_code <- function(data, var_input) {
         if(deparse(substitute(var_input)) %in% names(data)) {
 
                 var_names <- deparse(substitute(var_input))
-        } else
+                
+        } else if("quosure" %in% class(var_input) | "quosures" %in% class(var_input)) {
 
-        # handle var_input if it's passed using quo(), quos(), or vars(), including tidyselect helpers
-        if("quosure" %in% class(var_input) | "quosures" %in% class(var_input)) {
-
+                # handle var_input if it's passed using quo(), quos(), or vars(), including tidyselect helpers
                 var_names <- var_input %>% map(.x = ., .f = as_label) %>% unlist()
-        } else
+                
+        } else if(class(var_input) == "character") {
 
-        # handle var_input as a string
-        if(class(var_input) == "character") {
-
+                # handle var_input as a string
                 var_names <- var_input
         }
 

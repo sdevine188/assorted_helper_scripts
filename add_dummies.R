@@ -11,19 +11,17 @@ add_dummies <- function(data, vars, drop_vars = FALSE) {
         if(deparse(substitute(vars)) %in% names(data)) {
                 
                 var_names <- deparse(substitute(vars))
-        } else
+                
+        } else if("quosure" %in% class(vars) | "quosures" %in% class(vars)) {
                 
                 # handle vars if it's passed using quo(), quos(), or vars(), including tidyselect helpers
-                if("quosure" %in% class(vars) | "quosures" %in% class(vars)) {
-                        
-                        var_names <- vars %>% map(.x = ., .f = as_label) %>% unlist()
-                } else
-                        
-                        # handle vars as a string
-                        if(class(vars) == "character") {
-                                
-                                var_names <- vars
-                        }
+                var_names <- vars %>% map(.x = ., .f = as_label) %>% unlist()
+                
+        } else if(class(vars) == "character") {
+                
+                # handle vars as a string
+                var_names <- vars
+        }
         
         
         ##################################################################################

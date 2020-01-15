@@ -12,7 +12,7 @@ library(tidyverse)
 # also, avoids group_indices issue of not being able to handle grouped tbls without extra workarounds with group_map etc
 add_group_index <- function(data, vars, name = NULL) {
         
-        # handle vars arg, converting input to strings
+        # get var_names from vars
         
         # handle single bare variables passed as vars
         # the first negated str_detect condition will return TRUE if vars is not a character
@@ -20,19 +20,17 @@ add_group_index <- function(data, vars, name = NULL) {
         if(deparse(substitute(vars)) %in% names(data)) {
                 
                 var_names <- deparse(substitute(vars))
-        } else
+                
+        } else if("quosure" %in% class(vars) | "quosures" %in% class(vars)) {
                 
                 # handle vars if it's passed using quo(), quos(), or vars(), including tidyselect helpers
-                if("quosure" %in% class(vars) | "quosures" %in% class(vars)) {
-                        
-                        var_names <- vars %>% map(.x = ., .f = as_label) %>% unlist()
-                } else
-                        
-                        # handle vars as a string
-                        if(class(vars) == "character") {
-                                
-                                var_names <- vars
-                        }
+                var_names <- vars %>% map(.x = ., .f = as_label) %>% unlist()
+                
+        } else if(class(vars) == "character") {
+                
+                # handle vars as a string
+                var_names <- vars
+        }
         
         
         ################################################################################################################################
