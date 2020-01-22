@@ -11,8 +11,6 @@ add_one_w_raw_code <- function(data, var_input) {
         # get var_names from var_input
         
         # handle single bare variables passed as var_input
-        # the first negated str_detect condition will return TRUE if var_input is not a character
-        # the second negated str_detect condition returns TRUE if var_input deparsed isn't wrapped in "vars()"
         if(deparse(substitute(var_input)) %in% names(data)) {
 
                 var_names <- deparse(substitute(var_input))

@@ -13,8 +13,6 @@ coalesce_vars <- function(tbl, vars, drop_vars = FALSE) {
         # get var_names from vars
         
         # handle single bare variables passed as vars
-        # the first negated str_detect condition will return TRUE if vars is not a character
-        # the second negated str_detect condition returns TRUE if vars deparsed isn't wrapped in "vars()"
         if(deparse(substitute(vars)) %in% names(data)) {
                 
                 var_names <- deparse(substitute(vars))
