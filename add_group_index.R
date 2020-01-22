@@ -24,7 +24,7 @@ add_group_index <- function(data, vars, name = NULL) {
         } else if("quosure" %in% class(vars) | "quosures" %in% class(vars)) {
                 
                 # handle vars if it's passed using quo(), quos(), or vars(), including tidyselect helpers
-                var_names <- vars %>% map(.x = ., .f = as_label) %>% unlist()
+                var_names <- data %>% select(!!!vars) %>% names()
                 
         } else if(class(vars) == "character") {
                 
