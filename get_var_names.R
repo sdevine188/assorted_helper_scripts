@@ -18,7 +18,7 @@ add_one_w_raw_code <- function(data, var_input) {
         } else if("quosure" %in% class(var_input) | "quosures" %in% class(var_input)) {
 
                 # handle var_input if it's passed using quo(), quos(), or vars(), including tidyselect helpers
-                var_names <- data %>% select(!!!vars) %>% names()
+                var_names <- data %>% ungroup() %>% select(!!!vars) %>% names()
                 
         } else if(class(var_input) == "character") {
 

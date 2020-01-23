@@ -20,7 +20,7 @@ coalesce_vars <- function(tbl, vars, drop_vars = FALSE) {
         } else if("quosure" %in% class(vars) | "quosures" %in% class(vars)) {
                 
                 # handle vars if it's passed using quo(), quos(), or vars(), including tidyselect helpers
-                var_names <- data %>% select(!!!vars) %>% names()
+                var_names <- data %>% ungroup() %>% select(!!!vars) %>% names()
                 
         } else if(class(vars) == "character") {
                 
