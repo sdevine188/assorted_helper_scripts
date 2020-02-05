@@ -53,7 +53,8 @@ get_variable_variation <- function(data, id_vars, arrange_by = "max") {
         id_w_variation_count <- data %>% group_by(!!!syms(id_vars)) %>% summarize_at(.vars = vars(everything()), .funs = n_distinct) %>%
                 ungroup() %>% select(-c(!!!syms(id_vars))) %>% map2_dfr(.x = ., .y = names(.), .f = function(current_var_values = .x, current_var_name = .y) {
                         tibble(values = current_var_values) %>% mutate(variable = current_var_name) %>% 
-                                filter(values > 1) %>% mutate(id_w_variation_count = nrow(.)) %>% 
+                                mutate(id_w_variation_flag = ifelse(current_var_values > 1, 1, 0), 
+                                       id_w_variation_count = sum(id_w_variation_flag)) %>% 
                                 select(variable, id_w_variation_count) %>% slice(1)
                 })
         
@@ -86,7 +87,7 @@ get_variable_variation <- function(data, id_vars, arrange_by = "max") {
 # id_vars <- vars(homeworld)
 # 
 # starwars %>% count(species, gender, homeworld, mass, height) %>% arrange(desc(n))
-# data <- starwars %>% select(species, gender, homeworld, mass, height)
+# data <- starwars %>% select(species, gender, homeworld, mass, height) %>% mutate(no_variation_var = "test")
 # 
 # data %>% get_variable_variation(id_vars = "homeworld")
 # data %>% get_variable_variation(id_vars = homeworld, arrange_by = "id_count")
