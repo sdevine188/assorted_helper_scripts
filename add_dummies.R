@@ -6,8 +6,6 @@ add_dummies <- function(data, vars, drop_vars = FALSE) {
         # get var_names from vars
         
         # handle single bare variables passed as vars
-        # the first negated str_detect condition will return TRUE if vars is not a character
-        # the second negated str_detect condition returns TRUE if vars deparsed isn't wrapped in "vars()"
         if(deparse(substitute(vars)) %in% names(data)) {
                 
                 var_names <- deparse(substitute(vars))
@@ -15,7 +13,7 @@ add_dummies <- function(data, vars, drop_vars = FALSE) {
         } else if("quosure" %in% class(vars) | "quosures" %in% class(vars)) {
                 
                 # handle vars if it's passed using quo(), quos(), or vars(), including tidyselect helpers
-                var_names <- vars %>% map(.x = ., .f = as_label) %>% unlist()
+                var_names <- data %>% ungroup() %>% select(!!!vars) %>% names()
                 
         } else if(class(vars) == "character") {
                 
@@ -90,12 +88,12 @@ add_dummies <- function(data, vars, drop_vars = FALSE) {
         #####################
         
         
-        # if drop_vars = TRUE, bind vars_dummy_tbl with data and return
+        # if drop_vars = FALSE, bind vars_dummy_tbl with data and return
         if(drop_vars == FALSE) {
                 return(bind_cols(data, vars_dummy_tbl))
         }
         
-        # if drop_vars = TRUE, bind vars_dummy_tbl with data and return
+        # if drop_vars = TRUE, bind vars_dummy_tbl with data, drop vars, and return
         if(drop_vars == TRUE) {
                 return(bind_cols(data, vars_dummy_tbl) %>% select(-c(!!!syms(var_names))))
         }
