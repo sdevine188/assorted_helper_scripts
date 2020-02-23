@@ -4,7 +4,7 @@ library(tidyverse)
 # it chokes on "Yoda's" when trying get_crossed_dummy_vectors, because the parse_expr gets confused with multiple apostrophes
 
 # create add_crossed_dummies function
-add_crossed_dummies <- function(data, vars, drop_vars = FALSE) {
+add_crossed_dummies <- function(data, vars, drop_vars = FALSE, prefix = NULL, suffix = NULL) {
         
         # get var_names from vars
         
@@ -72,7 +72,8 @@ add_crossed_dummies <- function(data, vars, drop_vars = FALSE) {
                                          .f = ~ get_var_value_combos(data = data, 
                                                                      current_var_name = .x, current_var_number = .y)) %>%
                 unite(col = "crossed_dummy_var_name", tidyselect::matches("var_[1-9]+_name_and_value"), 
-                      sep = "_x_", remove = FALSE)
+                      sep = "_x_", remove = FALSE) %>%
+                mutate(crossed_dummy_var_name = str_c(prefix, crossed_dummy_var_name, suffix))
         
         
         ###################
@@ -128,9 +129,10 @@ add_crossed_dummies <- function(data, vars, drop_vars = FALSE) {
                 # get confused with single quotes
                 # note since the filter expression is built with the substitute in get_var_value_combos() above, 
                 # and then the dummy vector is binded to the original data, the substitute doesn't affect final output values
-                return(data %>%
-                        mutate(!!sym(current_var_name) := str_replace_all(string = !!sym(current_var_name), 
-                                                                          pattern = "'", replacement = "*$*")) %>%
+                return(data %>% 
+                               mutate_all(.funs = ~ str_replace_all(string = ., pattern = "'", replacement = "*$*")) %>%
+                        # mutate(!!sym(current_var_name) := str_replace_all(string = !!sym(current_var_name), 
+                        #                                                   pattern = "'", replacement = "*$*")) %>%
                         mutate(!!sym(current_crossed_dummy_var_name) := case_when(
                                 !!parse_expr(current_crossed_dummy_filter_expr) ~ 1, TRUE ~ 0)) %>%
                                select(!!sym(current_crossed_dummy_var_name)))
@@ -151,23 +153,19 @@ add_crossed_dummies <- function(data, vars, drop_vars = FALSE) {
                 bind_cols(data, .)
         
         
-        # current_crossed_dummy_filter_expr <- "gender == 'male' & species == 'Human'" 
-        
-        
         ##################################################################################
         
         
-        # if drop_vars = FALSE, return data_w_crossed_dummies
-        if(drop_vars == FALSE) {
-                return(data_w_crossed_dummies)
-        }
-        
-        # if drop_vars = TRUE, drop vars and return
+        # handle drop_vars = TRUE
         if(drop_vars == TRUE) {
-                return(data_w_crossed_dummies %>% select(-c(!!!syms(var_names))))
+                data_w_crossed_dummies <- data_w_crossed_dummies %>% select(-c(!!!syms(var_names)))
         }
         
         
+        ###################
+        
+        
+        return(data_w_crossed_dummies)
 }
 
 
@@ -175,16 +173,18 @@ add_crossed_dummies <- function(data, vars, drop_vars = FALSE) {
 
 
 # # test add_dummies()
-# starwars %>% add_crossed_dummies(vars = "gender") %>% glimpse()
-# starwars %>% add_crossed_dummies(vars = "gender") %>% select(starts_with("gender"))
-# starwars %>% add_crossed_dummies(vars = gender) %>% select(starts_with("gender"))
-# starwars %>% add_crossed_dummies(vars = vars(gender), drop_vars = TRUE) %>% select(starts_with("gender"))
-# starwars %>% filter(gender %in% c("male", "female")) %>%
+# # note that list columns are removed since add_crossed_dummies throws warning with them
+# starwars_data <- starwars %>% select(-c(films, vehicles, starships))
+# starwars_data %>% add_crossed_dummies(vars = "gender") %>% glimpse()
+# starwars_data %>% add_crossed_dummies(vars = "gender", prefix = "dummy_") %>% select(matches("gender."))
+# starwars_data %>% add_crossed_dummies(vars = gender, suffix = "_dummy") %>% select(starts_with("gender"))
+# starwars_data %>% add_crossed_dummies(vars = vars(gender), drop_vars = TRUE) %>% select(starts_with("gender"))
+# starwars_data %>% filter(gender %in% c("male", "female")) %>%
 #         mutate(movie = ifelse(row_number() < 40, "prequel", "sequel")) %>%
 #         add_crossed_dummies(vars = vars(gender, movie)) %>%
 #         select(gender, movie, matches("gender|movie")) %>%
 #         sample_n(10)
-# starwars %>% filter(gender %in% c("male", "female")) %>%
+# starwars_data %>% filter(gender %in% c("male", "female")) %>%
 #         mutate(movie = ifelse(row_number() < 40, "prequel", "sequel")) %>%
 #         add_crossed_dummies(vars = vars(gender, movie), drop_vars = TRUE) %>%
 #         select(matches("gender|movie")) %>%

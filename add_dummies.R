@@ -1,7 +1,7 @@
 library(tidyverse)
 
 # create add_dummies function
-add_dummies <- function(data, vars, drop_vars = FALSE) {
+add_dummies <- function(data, vars, drop_vars = FALSE, prefix = NULL, suffix = NULL) {
         
         # get var_names from vars
         
@@ -39,7 +39,7 @@ add_dummies <- function(data, vars, drop_vars = FALSE) {
                 }
                 
                 # get current_dummy_name based on current_var and current_value
-                current_dummy_name <- str_c(current_var, ".", current_value_clean)
+                current_dummy_name <- str_c(prefix, current_var, ".", current_value_clean, suffix)
           
                 # create current_var_value_dummy_tbl if current_value is NA
                 if(is.na(current_value)) {
@@ -108,6 +108,8 @@ add_dummies <- function(data, vars, drop_vars = FALSE) {
 # # test add_dummies()
 # starwars %>% add_dummies(vars = "gender") %>% glimpse()
 # starwars %>% add_dummies(vars = "gender") %>% select(starts_with("gender"))
+# starwars %>% add_dummies(vars = "gender", prefix = "dummy_") %>% select(matches("gender."))
+# starwars %>% add_dummies(vars = "gender", suffix = "_dummy") %>% select(starts_with("gender"))
 # starwars %>% add_dummies(vars = gender) %>% select(starts_with("gender"))
 # starwars %>% add_dummies(vars = vars(gender)) %>% select(starts_with("gender"))
 # starwars %>% add_dummies(vars = vars(gender, species)) %>% select(starts_with("gender"), starts_with("species"))
