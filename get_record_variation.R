@@ -48,7 +48,7 @@ get_record_variation <- function(data, id_vars, arrange_by = "max") {
         #######################
         
         
-        # get n_distinct_sum for each id
+        # get n_distinct_sum for each id, providing summary measure of overall variation across all variables in the record
         n_distinct_sum <- record_variation %>% pivot_longer(col = -c(!!!syms(id_vars)), names_to = "var_name", values_to = "n_distinct") %>%
                 group_by(!!!syms(id_vars)) %>% mutate(n_distinct_sum = sum(n_distinct, na.rm = TRUE)) %>% slice(1) %>% ungroup() %>% 
                 select(-c(n_distinct, var_name)) 
@@ -57,7 +57,7 @@ get_record_variation <- function(data, id_vars, arrange_by = "max") {
         
         ########################
         
-        # get n_distinct_max for each id
+        # get n_distinct_max for each id, providing summary measure of the maximum variation for any one variable in the record
         n_distinct_max <- record_variation %>% pivot_longer(col = -c(!!!syms(id_vars)), names_to = "var_name", values_to = "n_distinct") %>%
                 group_by(!!!syms(id_vars)) %>% mutate(n_distinct_max = max(n_distinct, na.rm = TRUE)) %>% slice(1) %>% ungroup() %>% 
                 select(-c(n_distinct, var_name)) 
@@ -101,17 +101,13 @@ get_record_variation <- function(data, id_vars, arrange_by = "max") {
 # 
 # starwars %>% filter(species == "Human") %>% count(species, gender, homeworld, mass, height) %>% arrange(desc(n))
 # data <- starwars %>% filter(species == "Human") %>% select(species, gender, homeworld, mass, height)
-# 
+# data
+#
 # data %>% get_record_variation(id_vars = "homeworld")
 # data %>% get_record_variation(id_vars = homeworld, arrange_by = "sum")
 # data %>% get_record_variation(id_vars = vars(homeworld), arrange_by = "record_count")
 # data %>% get_record_variation(id_vars = vars(homeworld, gender))
 # data %>% get_record_variation(id_vars = vars(homeworld, gender), arrange_by = "sum")
 # data %>% select(homeworld, species, gender, height) %>% get_record_variation(id_vars = vars(homeworld), arrange_by = "record_count")
-
-
-
-
-
 
 

@@ -31,7 +31,7 @@ get_variable_variation <- function(data, id_vars, arrange_by = "max") {
         ################################################################################################################################
         
         
-        # get n_distinct_max for each variable
+        # get n_distinct_max for each variable, providing summary measure of the max id-level count of n_distinct values for that variable
         n_distinct_max <- data %>% group_by(!!!syms(id_vars)) %>% summarize_at(.vars = vars(everything()), .funs = n_distinct) %>%
                 ungroup() %>% select(-c(!!!syms(id_vars))) %>% summarize_at(.vars = vars(everything()), .funs = max) %>%
                 pivot_longer(cols = everything(), names_to = "variable", values_to = "n_distinct_max")
@@ -40,7 +40,7 @@ get_variable_variation <- function(data, id_vars, arrange_by = "max") {
         #############################
         
         
-        # get n_distinct_avg for each variable
+        # get n_distinct_avg for each variable, providing summary measure of the average id-level count of n_distinct values for that variable
         n_distinct_mean <- data %>% group_by(!!!syms(id_vars)) %>% summarize_at(.vars = vars(everything()), .funs = n_distinct) %>%
                 ungroup() %>% select(-c(!!!syms(id_vars))) %>% summarize_at(.vars = vars(everything()), .funs = mean) %>%
                 pivot_longer(cols = everything(), names_to = "variable", values_to = "n_distinct_mean")
@@ -88,7 +88,8 @@ get_variable_variation <- function(data, id_vars, arrange_by = "max") {
 # 
 # starwars %>% count(species, gender, homeworld, mass, height) %>% arrange(desc(n))
 # data <- starwars %>% select(species, gender, homeworld, mass, height) %>% mutate(no_variation_var = "test")
-# 
+# data
+#
 # data %>% get_variable_variation(id_vars = "homeworld")
 # data %>% get_variable_variation(id_vars = homeworld, arrange_by = "id_count")
 # data %>% get_variable_variation(id_vars = vars(homeworld), arrange_by = "mean")
