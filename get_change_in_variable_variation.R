@@ -7,19 +7,19 @@
 library(tidyverse)
 
 # create get_change_in_variable_variation function
-get_change_in_variable_variation <- function(before_data, after_data, id_vars, arrange_by = "max", change_only = TRUE) {
+get_change_in_variable_variation <- function(before_data, after_data, id_vars, arrange_by = "id_count", change_only = TRUE) {
         
         # handle id_vars arg, converting input to strings
         
         # handle single bare variables passed as id_vars
-        if(deparse(substitute(id_vars)) %in% names(data)) {
+        if(deparse(substitute(id_vars)) %in% names(before_data)) {
                 
                 id_vars <- deparse(substitute(id_vars))
                 
         } else if("quosure" %in% class(id_vars) | "quosures" %in% class(id_vars)) {
                 
                 # handle id_vars if it's passed using quo(), quos(), or id_vars(), including tidyselect helpers
-                id_vars <- data %>% ungroup() %>% select(!!!(id_vars)) %>% names()
+                id_vars <- before_data %>% ungroup() %>% select(!!!(id_vars)) %>% names()
                 
         } else if(class(id_vars) == "character") {
                 
@@ -120,7 +120,7 @@ get_change_in_variable_variation <- function(before_data, after_data, id_vars, a
 # before_data
 # 
 # after_data <- before_data %>% filter(gender == "male") %>%
-#         mutate(after_only_var = ifelse(height > 170, 1, 0), after_var_wo_variation = 0) %>% 
+#         mutate(after_only_var = ifelse(height > 170, 1, 0), after_var_wo_variation = 0) %>%
 #         select(-c(before_only_var, before_var_wo_variation))
 # after_data
 
@@ -132,7 +132,7 @@ get_change_in_variable_variation <- function(before_data, after_data, id_vars, a
 # after_data %>% get_variable_variation(id_vars = homeworld)
 # get_change_in_variable_variation(before_data = before_data, after_data = after_data, id_vars = homeworld)
 # get_change_in_variable_variation(before_data = before_data, after_data = after_data, id_vars = homeworld, arrange_by = "mean")
-# get_change_in_variable_variation(before_data = before_data, after_data = after_data, id_vars = homeworld, arrange_by = "id_count")
+# get_change_in_variable_variation(before_data = before_data, after_data = after_data, id_vars = homeworld, arrange_by = "max")
 # get_change_in_variable_variation(before_data = before_data, after_data = after_data, id_vars = homeworld, change_only = FALSE) %>%
 #         select(variable, contains("id_w_variation_count"))
 # 
@@ -141,7 +141,7 @@ get_change_in_variable_variation <- function(before_data, after_data, id_vars, a
 # after_data %>% get_variable_variation(id_vars = vars(homeworld, species))
 # get_change_in_variable_variation(before_data = before_data, after_data = after_data, id_vars = vars(homeworld, species))
 # get_change_in_variable_variation(before_data = before_data, after_data = after_data, id_vars = vars(homeworld, gender), arrange_by = "mean")
-# get_change_in_variable_variation(before_data = before_data, after_data = after_data, id_vars = vars(homeworld, gender), arrange_by = "id_count")
+# get_change_in_variable_variation(before_data = before_data, after_data = after_data, id_vars = vars(homeworld, gender), arrange_by = "max")
 # get_change_in_variable_variation(before_data = before_data, after_data = after_data, id_vars = vars(homeworld, species), change_only = FALSE) %>%
 #         select(variable, contains("id_w_variation_count"))
 

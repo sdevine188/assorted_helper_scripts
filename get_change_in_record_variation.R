@@ -7,19 +7,19 @@
 library(tidyverse)
 
 # create get_change_in_record_variation function
-get_change_in_record_variation <- function(before_data, after_data, id_vars, arrange_by = "max", change_only = TRUE) {
+get_change_in_record_variation <- function(before_data, after_data, id_vars, arrange_by = "sum", change_only = TRUE) {
         
         # handle id_vars arg, converting input to strings
         
         # handle single bare variables passed as id_vars
-        if(deparse(substitute(id_vars)) %in% names(data)) {
+        if(deparse(substitute(id_vars)) %in% names(before_data)) {
                 
                 id_vars <- deparse(substitute(id_vars))
                 
         } else if("quosure" %in% class(id_vars) | "quosures" %in% class(id_vars)) {
                 
                 # handle id_vars if it's passed using quo(), quos(), or id_vars(), including tidyselect helpers
-                id_vars <- data %>% ungroup() %>% select(!!!(id_vars)) %>% names()
+                id_vars <- before_data %>% ungroup() %>% select(!!!(id_vars)) %>% names()
                 
         } else if(class(id_vars) == "character") {
                 
@@ -109,7 +109,7 @@ get_change_in_record_variation <- function(before_data, after_data, id_vars, arr
 
 
 # # test
-# id_vars <- "homeworld"
+# # id_vars <- "homeworld"
 # 
 # before_data <- starwars %>% filter(species %in% c("Human", "Droid", "Gungan")) %>%
 #         select(species, gender, homeworld, mass, height) %>%
@@ -127,7 +127,7 @@ get_change_in_record_variation <- function(before_data, after_data, id_vars, arr
 # before_data %>% get_record_variation(id_vars = homeworld)
 # after_data %>% get_record_variation(id_vars = homeworld)
 # get_change_in_record_variation(before_data = before_data, after_data = after_data, id_vars = homeworld)
-# get_change_in_record_variation(before_data = before_data, after_data = after_data, id_vars = homeworld, arrange_by = "sum")
+# get_change_in_record_variation(before_data = before_data, after_data = after_data, id_vars = homeworld, arrange_by = "max")
 # get_change_in_record_variation(before_data = before_data, after_data = after_data, id_vars = homeworld, arrange_by = "record_count")
 # get_change_in_record_variation(before_data = before_data, after_data = after_data, id_vars = homeworld, change_only = FALSE) %>%
 #         select(homeworld, contains("mass_n_distinct"))
@@ -136,7 +136,7 @@ get_change_in_record_variation <- function(before_data, after_data, id_vars, arr
 # before_data %>% get_record_variation(id_vars = vars(homeworld, species))
 # after_data %>% get_record_variation(id_vars = vars(homeworld, species))
 # get_change_in_record_variation(before_data = before_data, after_data = after_data, id_vars = vars(homeworld, species))
-# get_change_in_record_variation(before_data = before_data, after_data = after_data, id_vars = vars(homeworld, gender), arrange_by = "sum")
+# get_change_in_record_variation(before_data = before_data, after_data = after_data, id_vars = vars(homeworld, gender), arrange_by = "max")
 # get_change_in_record_variation(before_data = before_data, after_data = after_data, id_vars = vars(homeworld, gender), arrange_by = "record_count")
 # get_change_in_record_variation(before_data = before_data, after_data = after_data, id_vars = vars(homeworld, species), change_only = FALSE) %>%
 #         select(homeworld, species, contains("mass_n_distinct"))

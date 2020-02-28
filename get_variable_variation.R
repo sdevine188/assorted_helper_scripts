@@ -7,7 +7,7 @@
 library(tidyverse)
 
 # create get_variable_variation function
-get_variable_variation <- function(data, id_vars, arrange_by = "max") {
+get_variable_variation <- function(data, id_vars, arrange_by = "id_count") {
         
         # handle id_vars arg, converting input to strings
         
@@ -91,11 +91,11 @@ get_variable_variation <- function(data, id_vars, arrange_by = "max") {
 # data
 #
 # data %>% get_variable_variation(id_vars = "homeworld")
-# data %>% get_variable_variation(id_vars = homeworld, arrange_by = "id_count")
+# data %>% get_variable_variation(id_vars = homeworld, arrange_by = "max")
 # data %>% get_variable_variation(id_vars = vars(homeworld), arrange_by = "mean")
 # data %>% get_variable_variation(id_vars = vars(homeworld, gender))
 # data %>% get_variable_variation(id_vars = vars(homeworld, gender), arrange_by = "mean")
-# data %>% select(homeworld, species, gender, height) %>% get_variable_variation(id_vars = vars(homeworld), arrange_by = "id_count")
+# data %>% select(homeworld, species, gender, height) %>% get_variable_variation(id_vars = vars(homeworld), arrange_by = "max")
 
 
 

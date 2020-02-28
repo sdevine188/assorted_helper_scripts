@@ -8,7 +8,7 @@ library(tidyverse)
 
 
 # create get_record_variation function
-get_record_variation <- function(data, id_vars, arrange_by = "max") {
+get_record_variation <- function(data, id_vars, arrange_by = "sum") {
         
         # handle id_vars arg, converting input to strings
         
@@ -70,7 +70,8 @@ get_record_variation <- function(data, id_vars, arrange_by = "max") {
         record_variation <- record_variation %>% left_join(., record_count, by = id_vars) %>% 
                 left_join(., n_distinct_sum, by = id_vars) %>% 
                 left_join(., n_distinct_max, by = id_vars) %>% 
-                rename_at(.vars = vars(-c(!!!syms(id_vars), record_count, n_distinct_sum, n_distinct_max)), .funs = ~ str_c(., "_n_distinct"))
+                rename_at(.vars = vars(-c(!!!syms(id_vars), record_count, n_distinct_sum, n_distinct_max)), .funs = ~ str_c(., "_n_distinct")) %>%
+                select(!!!syms(id_vars), record_count, n_distinct_sum, n_distinct_max, everything())
         
         
         #######################
@@ -102,12 +103,12 @@ get_record_variation <- function(data, id_vars, arrange_by = "max") {
 # starwars %>% filter(species == "Human") %>% count(species, gender, homeworld, mass, height) %>% arrange(desc(n))
 # data <- starwars %>% filter(species == "Human") %>% select(species, gender, homeworld, mass, height)
 # data
-#
+# 
 # data %>% get_record_variation(id_vars = "homeworld")
-# data %>% get_record_variation(id_vars = homeworld, arrange_by = "sum")
+# data %>% get_record_variation(id_vars = homeworld, arrange_by = "max")
 # data %>% get_record_variation(id_vars = vars(homeworld), arrange_by = "record_count")
 # data %>% get_record_variation(id_vars = vars(homeworld, gender))
-# data %>% get_record_variation(id_vars = vars(homeworld, gender), arrange_by = "sum")
+# data %>% get_record_variation(id_vars = vars(homeworld, gender), arrange_by = "max")
 # data %>% select(homeworld, species, gender, height) %>% get_record_variation(id_vars = vars(homeworld), arrange_by = "record_count")
 
 
