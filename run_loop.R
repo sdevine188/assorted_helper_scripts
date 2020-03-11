@@ -1,4 +1,4 @@
-# # load delay_screen_saver()
+# # load run_loop()
 # current_wd <- getwd()
 # setwd("H:/R/helper_scripts")
 # source("run_loop.R")
@@ -11,7 +11,7 @@ library(KeyboardSimulator)
 
 # create run_loop function
 
-# create move_cursor function
+# create click_cursor function
 click_cursor <- function(current_minute) {
         
         # click mouse
