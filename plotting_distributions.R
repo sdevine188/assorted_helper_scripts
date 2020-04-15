@@ -102,6 +102,20 @@ starwars %>% filter(mass < 1000) %>% ggplot(data = ., aes(x = mass, y = gender))
 starwars %>% filter(mass < 1000) %>% ggplot(data = ., aes(x = mass, y = gender)) + 
         geom_density_ridges(jittered_points = TRUE, point_shape = "|", position = position_points_jitter(width = 0.05, height = 0)) 
 
+# ggridges for data that has bounds, like zero lower limit, and so need to trim distribution
+# notice how just using geom_density_ridges below shows density curve over negative values not found in data
+starwars %>% mutate(good_flag = sample(x = c(0, 1), size = nrow(starwars), replace = TRUE),
+                    days_since_eating = c(rep(0, times = 50), 
+                                          sample(x = c(0, 1, 2, 3), size = nrow(starwars) - 50, replace = TRUE))) %>%
+        ggplot(data = ., aes(x = days_since_eating, y = factor(good_flag))) +
+        geom_density_ridges()
+# so below is the modification to show trimmed density curve for these cases of boundaries
+starwars %>% mutate(good_flag = sample(x = c(0, 1), size = nrow(starwars), replace = TRUE),
+        days_since_eating = c(rep(0, times = 50), 
+                                          sample(x = c(0, 1, 2, 3), size = nrow(starwars) - 50, replace = TRUE))) %>%
+        ggplot(data = ., aes(x = days_since_eating, y = factor(good_flag), height = ..density..)) + 
+        geom_density_ridges(stat = "density", trim = TRUE)
+        
 
 
 
