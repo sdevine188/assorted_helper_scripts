@@ -6,24 +6,24 @@ library(attempt)
 # this works, because raw code is running in same environment as rest of the function
 # actually using a get_var_names() function containing this raw code will not work inside another function
 # due to how quosures are dependent on their environment
-add_one_w_raw_code <- function(data, var_input) {
+add_one_w_raw_code <- function(data, vars) {
 
-        # get var_names from var_input
+        # get var_names from vars
         
-        # handle single bare variables passed as var_input
-        if(deparse(substitute(var_input)) %in% names(data)) {
+        # handle single bare variables passed as vars
+        if(deparse(substitute(vars)) %in% names(data)) {
 
-                var_names <- deparse(substitute(var_input))
+                var_names <- deparse(substitute(vars))
                 
-        } else if("quosure" %in% class(var_input) | "quosures" %in% class(var_input)) {
+        } else if("quosure" %in% class(vars) | "quosures" %in% class(vars)) {
 
-                # handle var_input if it's passed using quo(), quos(), or vars(), including tidyselect helpers
+                # handle vars if it's passed using quo(), quos(), or vars(), including tidyselect helpers
                 var_names <- data %>% ungroup() %>% select(!!!vars) %>% names()
                 
-        } else if(class(var_input) == "character") {
+        } else if(class(vars) == "character") {
 
-                # handle var_input as a string
-                var_names <- var_input
+                # handle vars as a string
+                var_names <- vars
         }
 
         
