@@ -10,23 +10,29 @@ library(tidyverse)
 # create coalesce_vars function
 coalesce_vars <- function(tbl, vars, drop_vars = FALSE) {
         
-        # get var_names from vars
+        # get var_names from var_inputs
         
         # handle single bare variables passed as vars
-        if(deparse(substitute(vars)) %in% names(data)) {
+        # the first negated str_detect condition will return TRUE if vars is not a character
+        # the second negated str_detect condition returns TRUE if vars deparsed isn't wrapped in "vars()"
+        if((!(str_detect(string = deparse(substitute(vars)), pattern = regex("^\".*\"$|^c\\(\".*\"\\)$")))) &
+           (!(str_detect(string = deparse(substitute(vars)), pattern = regex("^vars\\(.*\\)$"))))) {
                 
                 var_names <- deparse(substitute(vars))
-                
-        } else if("quosure" %in% class(vars) | "quosures" %in% class(vars)) {
+        } else
                 
                 # handle vars if it's passed using quo(), quos(), or vars(), including tidyselect helpers
-                var_names <- data %>% ungroup() %>% select(!!!vars) %>% names()
-                
-        } else if(class(vars) == "character") {
-                
-                # handle vars as a string
-                var_names <- vars
-        }
+                if((!(str_detect(string = deparse(substitute(vars)), pattern = regex("^\".*\"$|^c\\(\".*\"\\)$")))) &
+                   (str_detect(string = deparse(substitute(vars)), pattern = regex("^vars\\(.*\\)$")))) {
+                        
+                        var_names <- vars %>% map(.x = ., .f = as_label) %>% unlist()
+                } else
+                        
+                        # handle vars as a string
+                        if(class(vars) == "character") {
+                                
+                                var_names <- vars
+                        }
         
         
         ################################################################################################################################
