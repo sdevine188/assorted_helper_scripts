@@ -1,6 +1,7 @@
 library(tidyverse)
 library(ggridges)
 library(skimr)
+library(ggforce)
 
 options(scipen=999)
 
@@ -115,7 +116,14 @@ starwars %>% mutate(good_flag = sample(x = c(0, 1), size = nrow(starwars), repla
                                           sample(x = c(0, 1, 2, 3), size = nrow(starwars) - 50, replace = TRUE))) %>%
         ggplot(data = ., aes(x = days_since_eating, y = factor(good_flag), height = ..density..)) + 
         geom_density_ridges(stat = "density", trim = TRUE)
-        
 
 
+#/////////////////////////////////////////////////////////////////
 
+
+# geom_sina
+# https://ggforce.data-imaginist.com/reference/geom_sina.html
+
+# sina plot with log scale, color mapping, and cut intervals on x axis
+midwest %>% ggplot(data = ., aes(x = cut_width(area, 0.02), y = popdensity, color = inmetro)) + geom_sina() +
+        scale_y_log10()
