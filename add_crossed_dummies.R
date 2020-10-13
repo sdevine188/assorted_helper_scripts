@@ -1,4 +1,11 @@
+# # load add_crossed_dummies()
+# current_wd <- getwd()
+# setwd("H:/R/helper_scripts")
+# source("add_crossed_dummies.R")
+# setwd(current_wd)
+
 library(tidyverse)
+library(rlang)
 
 # need to handle apostrophes in variables - see gender/species run
 # it chokes on "Yoda's" when trying get_crossed_dummy_vectors, because the parse_expr gets confused with multiple apostrophes
@@ -14,12 +21,12 @@ add_crossed_dummies <- function(data, vars, drop_vars = FALSE, prefix = NULL, su
                 var_names <- deparse(substitute(vars))
                 
         } else if("quosure" %in% class(vars) | "quosures" %in% class(vars)) {
-                        
+                
                 # handle vars if it's passed using quo(), quos(), or vars(), including tidyselect helpers
                 var_names <- data %>% ungroup() %>% select(!!!vars) %>% names()
-                        
+                
         } else if(class(vars) == "character") {
-                        
+                
                 # handle vars as a string
                 var_names <- vars
         }
@@ -58,7 +65,7 @@ add_crossed_dummies <- function(data, vars, drop_vars = FALSE, prefix = NULL, su
                                mutate(!!sym(var_name_output) := current_var_name) %>%
                                rename(!!sym(var_value_output) := current_var_name) %>%
                                mutate(!!sym(var_value_character_output) := case_when(is.na(!!sym(var_value_output)) ~ "NA",
-                                                                                TRUE ~ as.character(!!sym(var_value_output)))) %>%
+                                                                                     TRUE ~ as.character(!!sym(var_value_output)))) %>%
                                unite(col = !!sym(var_name_and_value_output), !!sym(var_name_output), 
                                      !!sym(var_value_output), remove = FALSE, sep = "."))
         }
@@ -116,7 +123,7 @@ add_crossed_dummies <- function(data, vars, drop_vars = FALSE, prefix = NULL, su
                 reduce(.f = bind_cols) %>% select(-matches("crossed_dummy_var_name[0-9]+")) %>%
                 unite(col = crossed_dummy_filter_expr, contains("filter_expr"), sep = " & ", remove = FALSE) %>%
                 select(-crossed_dummy_var_name) %>% bind_cols(crossed_dummy_combos, .) 
-
+        
         
         ###################
         
@@ -131,10 +138,10 @@ add_crossed_dummies <- function(data, vars, drop_vars = FALSE, prefix = NULL, su
                 # and then the dummy vector is binded to the original data, the substitute doesn't affect final output values
                 return(data %>% 
                                mutate_all(.funs = ~ str_replace_all(string = ., pattern = "'", replacement = "*$*")) %>%
-                        # mutate(!!sym(current_var_name) := str_replace_all(string = !!sym(current_var_name), 
-                        #                                                   pattern = "'", replacement = "*$*")) %>%
-                        mutate(!!sym(current_crossed_dummy_var_name) := case_when(
-                                !!parse_expr(current_crossed_dummy_filter_expr) ~ 1, TRUE ~ 0)) %>%
+                               # mutate(!!sym(current_var_name) := str_replace_all(string = !!sym(current_var_name), 
+                               #                                                   pattern = "'", replacement = "*$*")) %>%
+                               mutate(!!sym(current_crossed_dummy_var_name) := case_when(
+                                       !!parse_expr(current_crossed_dummy_filter_expr) ~ 1, TRUE ~ 0)) %>%
                                select(!!sym(current_crossed_dummy_var_name)))
         }
         
@@ -190,4 +197,10 @@ add_crossed_dummies <- function(data, vars, drop_vars = FALSE, prefix = NULL, su
 #         select(matches("gender|movie")) %>%
 #         sample_n(10)
 
+# starwars %>% filter(species %in% c("Human", "Mirialan")) %>% count(gender, hair_color, species) %>% arrange(desc(n))
+# starwars %>% filter(species %in% c("Human", "Mirialan")) %>%
+#         add_crossed_dummies(vars = vars(gender, hair_color)) %>%
+#         add_dummies(vars = species) %>%
+#         select(matches("hair_color.black|hair_color.brown$|species.")) %>%
+#         data.frame() %>% UpSetR::upset(nsets = 10)
 
