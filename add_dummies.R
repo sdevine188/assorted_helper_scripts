@@ -1,3 +1,9 @@
+# # load add_dummies()
+# current_wd <- getwd()
+# setwd("H:/R/helper_scripts")
+# source("add_dummies.R")
+# setwd(current_wd)
+
 library(tidyverse)
 
 # create add_dummies function
@@ -27,7 +33,7 @@ add_dummies <- function(data, vars, drop_vars = FALSE, prefix = NULL, suffix = N
         
         # create get_dummies function
         get_dummies <- function(data, current_var, current_value) {
-
+                
                 # get current_value_clean when current_value is NA
                 if(is.na(current_value)) {
                         current_value_clean <- "NA"
@@ -40,19 +46,19 @@ add_dummies <- function(data, vars, drop_vars = FALSE, prefix = NULL, suffix = N
                 
                 # get current_dummy_name based on current_var and current_value
                 current_dummy_name <- str_c(prefix, current_var, ".", current_value_clean, suffix)
-          
+                
                 # create current_var_value_dummy_tbl if current_value is NA
                 if(is.na(current_value)) {
                         current_var_value_dummy_tbl <- data %>%
-                            mutate(!!sym(current_dummy_name) := case_when(is.na(!!sym(current_var)) ~ 1,
-                                        TRUE ~ 0)) %>% select(!!sym(current_dummy_name))
+                                mutate(!!sym(current_dummy_name) := case_when(is.na(!!sym(current_var)) ~ 1,
+                                                                              TRUE ~ 0)) %>% select(!!sym(current_dummy_name))
                 }
                 
                 # create current_var_value_dummy_tbl if current_value is not NA
                 if(!(is.na(current_value))) {
                         current_var_value_dummy_tbl <- data %>%
-                            mutate(!!sym(current_dummy_name) := case_when(!!sym(current_var) == 
-                                current_value_clean ~ 1, TRUE ~ 0)) %>% select(!!sym(current_dummy_name))
+                                mutate(!!sym(current_dummy_name) := case_when(!!sym(current_var) == 
+                                                                                      current_value_clean ~ 1, TRUE ~ 0)) %>% select(!!sym(current_dummy_name))
                 }
                 
                 # return current_var_value_dummy_tbl
@@ -71,8 +77,8 @@ add_dummies <- function(data, vars, drop_vars = FALSE, prefix = NULL, suffix = N
                 
                 # loop through values calling get_dummies() to get current_var_dummy_tbl
                 current_var_dummy_tbl <- map_dfc(.x = current_var_values, 
-                    .f = ~ get_dummies(data = data, current_var = current_var, current_value = .x))
-
+                                                 .f = ~ get_dummies(data = data, current_var = current_var, current_value = .x))
+                
                 # return current_var_dummy_tbl
                 return(current_var_dummy_tbl)
         }
@@ -116,4 +122,7 @@ add_dummies <- function(data, vars, drop_vars = FALSE, prefix = NULL, suffix = N
 # starwars %>% add_dummies(vars = vars(gender, species), drop_vars = TRUE) %>%
 #         select(starts_with("gender"), starts_with("species"))
 
-
+# starwars %>% filter(species %in% c("Human", "Gungan", "Droid")) %>% count(gender, species) %>% arrange(desc(n))
+# starwars %>% filter(species %in% c("Human", "Gungan", "Droid")) %>%
+#         add_dummies(vars = vars(gender, species)) %>% select(matches("gender.|species.")) %>% 
+#         data.frame() %>% UpSetR::upset(nsets = 10)
