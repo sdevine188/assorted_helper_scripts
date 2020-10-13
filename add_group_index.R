@@ -12,22 +12,22 @@ library(tidyverse)
 # also, avoids group_indices issue of not being able to handle grouped tbls without extra workarounds with group_map etc
 add_group_index <- function(data, group_vars, group_name = NULL) {
         
-        # get var_names from group_vars
+        # handle group_vars arg, converting input to strings
         
         # handle single bare variables passed as group_vars
         if(deparse(substitute(group_vars)) %in% names(data)) {
                 
-                var_names <- deparse(substitute(group_vars))
+                group_vars <- deparse(substitute(group_vars))
                 
         } else if("quosure" %in% class(group_vars) | "quosures" %in% class(group_vars)) {
-                
+                        
                 # handle group_vars if it's passed using quo(), quos(), or group_vars(), including tidyselect helpers
-                var_names <- data %>% ungroup() %>% select(!!!group_vars) %>% names()
+                group_vars <- data %>% ungroup() %>% select(!!!(group_vars)) %>% names()
                 
         } else if(class(group_vars) == "character") {
-                
+                                
                 # handle group_vars as a string
-                var_names <- group_vars
+                group_vars <- group_vars
         }
         
         
@@ -38,11 +38,11 @@ add_group_index <- function(data, group_vars, group_name = NULL) {
         if(is.null(data %>% groups())) {
                 
                 if(is.null(group_name)) {
-                        return(data %>% distinct(!!!syms(var_names)) %>% mutate(group_index = row_number()) %>% left_join(data, ., by = var_names)) 
+                        return(data %>% distinct(!!!syms(group_vars)) %>% mutate(group_index = row_number()) %>% left_join(data, ., by = group_vars)) 
                 }
                 
                 if(!(is.null(group_name))) {
-                        return(data %>% distinct(!!!syms(var_names)) %>% mutate(group_index = row_number()) %>% left_join(data, ., by = var_names) %>%
+                        return(data %>% distinct(!!!syms(group_vars)) %>% mutate(group_index = row_number()) %>% left_join(data, ., by = group_vars) %>%
                                        rename(!!sym(group_name) := group_index)) 
                 }
         }
@@ -62,41 +62,39 @@ add_group_index <- function(data, group_vars, group_name = NULL) {
                 # and return as an ungrouped tbl
                 
                 if(is.null(group_name)) {
-                        return(data %>% distinct(!!!syms(var_names)) %>% 
-                                       mutate(group_index = row_number()) %>% ungroup() %>% 
-                                       left_join(data, ., by = c(grouping_var, var_names))) 
+                        return(data %>% distinct(!!!syms(group_vars)) %>% mutate(group_index = row_number()) %>% ungroup() %>% 
+                                       left_join(data, ., by = c(grouping_var, group_vars))) 
                 }
                 
                 if(!(is.null(group_name))) {
-                        return(data %>% distinct(!!!syms(var_names)) %>% mutate(group_index = row_number()) %>% ungroup() %>% 
-                                       left_join(data, ., by = c(grouping_var, var_names)) %>% 
-                                       rename(!!sym(group_name) := group_index)) 
+                        return(data %>% distinct(!!!syms(group_vars)) %>% mutate(group_index = row_number()) %>% ungroup() %>% 
+                                       left_join(data, ., by = c(grouping_var, group_vars)) %>% rename(!!sym(group_name) := group_index)) 
                 }
+                
         }
+        
 }
 
 
 #####################
 
 
-# test add_group_index()
-starwars %>% add_group_index(group_vars = "species") %>% select(species, group_index)
-starwars %>% add_group_index(group_vars = species) %>% select(species, group_index)
-starwars %>% add_group_index(group_vars = vars(species, gender)) %>% select(species, group_index)
-
-starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE)) %>%
-        group_by(movie) %>% add_group_index(group_vars = species, group_name = "my_group_index") %>%
-        select(movie, species, my_group_index) %>% print(n = 15)
-starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE),
-                    good_or_bad = sample(x = c("good", "bad"), size = nrow(.), replace = TRUE)) %>%
-        group_by(movie) %>% 
-        add_group_index(group_vars = vars(species, good_or_bad), group_name = "my_group_index") %>%
-        select(movie, species, good_or_bad, my_group_index) %>% print(n = 15)
-starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE),
-                    good_or_bad = sample(x = c("good", "bad"), size = nrow(.), replace = TRUE)) %>%
-        group_by(movie, gender) %>% 
-        add_group_index(group_vars = vars(species, good_or_bad), group_name = "my_group_index") %>%
-        select(movie, gender, species, good_or_bad, my_group_index) %>% print(n = 15)
+# # test add_group_index()
+# starwars %>% add_group_index(group_vars = "species")
+# starwars %>% add_group_index(group_vars = species)
+# starwars %>% add_group_index(group_vars = vars(species, gender))
+# 
+# starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE)) %>%
+#         group_by(movie) %>% add_group_index(group_vars = species, group_name = "my_group_index") %>%
+#         select(movie, species, my_group_index) %>% print(n = 15)
+# starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE),
+#                     good_or_bad = sample(x = c("good", "bad"), size = nrow(.), replace = TRUE)) %>%
+#         group_by(movie) %>% add_group_index(group_vars = vars(species, good_or_bad), group_name = "my_group_index") %>%
+#         select(movie, species, good_or_bad, my_group_index) %>% print(n = 15)
+# starwars %>% mutate(movie = sample(x = c("old", "new"), size = nrow(.), replace = TRUE),
+        #             good_or_bad = sample(x = c("good", "bad"), size = nrow(.), replace = TRUE)) %>%
+        # group_by(movie, gender) %>% add_group_index(group_vars = vars(species, good_or_bad), group_name = "my_group_index") %>%
+        # select(movie, gender, species, good_or_bad, my_group_index) %>% print(n = 15)
 
 
 ##############################################################################################################################
