@@ -41,10 +41,13 @@ jcolors("pal6")
 
 show_col(c("#08306B", "#2171B5", "#6BAED6"))
 show_col(c("#A4BD32", "#24A99C", "#2E6657", "#265448"))
-show_col(c("#08306B", "#2171B5", "#6BAED6", "#78909C", "#BBBE64", "#24A99C", "#2E6657"))
-# "#2E6657",
-# "#265448"
-# "#A4BD32"
+show_col(c("#08306B", "#2171B5", "#6BAED6", "#78909C", "#99ba78", "#24A99C", "#2E6657"))
+# "#99ba78"
+#89b166
+#009a98
+show_col(c("#89b166", "#009a98", "#2E6657"))
+
+#//////////////////////////
 
 
 # create data ####
@@ -66,7 +69,7 @@ data %>% print(n = nrow(.))
 
 
 # blue_grey_green
-color_palette <- tibble(hex = c("#08306B", "#2171B5", "#6BAED6", "#78909C", "#BBBE64", "#24A99C", "#2E6657"))
+color_palette <- tibble(hex = c("#08306B", "#2171B5", "#6BAED6", "#78909C", "#99ba78", "#24A99C", "#2E6657"))
 color_palette
 show_col(color_palette %>% pull(hex))
 
@@ -94,7 +97,7 @@ pandem_panback_scatterplot <- chart_data %>%
         ggplot(data = ., aes(x = value_1, y = value_2, label = name,
                              color = factor(color_bin, 
                                             levels = c("1", "2", "3", "4", "5", "6", "7")))) +
-        geom_point(size = 5) + 
+        geom_point(size = 6) + 
         geom_text_repel(fontface = "bold", point.padding = .2, size = 4) +
         scale_color_manual(values = chart_data_color_list) +
         # scale_x_discrete(expand = c(0, 0)) +
@@ -165,7 +168,7 @@ chart_data <- data %>%
 
 
 # blue_grey_green
-color_palette <- tibble(hex = c("#08306B", "#2171B5", "#6BAED6", "#78909C", "#BBBE64", "#24A99C", "#2E6657"))
+color_palette <- tibble(hex = c("#08306B", "#2171B5", "#6BAED6", "#78909C", "#99ba78", "#24A99C", "#2E6657"))
 color_palette
 show_col(color_palette %>% pull(hex))
 
@@ -189,10 +192,10 @@ chart_data_color_list
 
 
 # create jitter_plot ####
-pandem_type_jitter_plot <- chart_data %>% ggplot(data = ., aes(x = var, size = 1, 
+pandem_type_jitter_plot <- chart_data %>% ggplot(data = ., aes(x = var, 
                                         y = value, color = factor(color_bin, 
                         levels = c("1", "2", "3", "4", "5", "6","7")))) +  
-        geom_jitter(width = 0.15, height = .25) +         
+        geom_jitter(width = 0.15, height = .25, size = 6) +         
         scale_size(guide = "none") +
         scale_color_manual(values = chart_data_color_list) +
         scale_x_discrete(expand = c(.1, 0)) +
@@ -257,7 +260,7 @@ pandem_type_jitter_plot
 
 
 # blue_grey_green
-color_palette <- tibble(hex = c("#08306B", "#2171B5", "#6BAED6", "#78909C", "#BBBE64", "#24A99C", "#2E6657"))
+color_palette <- tibble(hex = c("#08306B", "#2171B5", "#6BAED6", "#78909C", "#99ba78", "#24A99C", "#2E6657"))
 color_palette
 show_col(color_palette %>% pull(hex))
 
@@ -363,7 +366,7 @@ chart_data %>% count(group_number)
 
 
 # blue_grey_green
-color_palette <- tibble(hex = c("#08306B", "#2171B5", "#6BAED6", "#78909C", "#BBBE64", "#24A99C", "#2E6657"))
+color_palette <- tibble(hex = c("#08306B", "#2171B5", "#6BAED6", "#78909C", "#99ba78", "#24A99C", "#2E6657"))
 color_palette
 show_col(color_palette %>% pull(hex))
 
@@ -392,7 +395,7 @@ pandem_panback_line_chart <- chart_data %>%
                              color = factor(color_bin, 
                                             levels = c("1", "2", "3", "4", "5", "6", "7")))) +
         geom_line(size = 3) + 
-        geom_point(size = 5) + 
+        geom_point(size = 6) + 
         scale_color_manual(values = chart_data_color_list) +
         # scale_x_discrete(expand = c(0, 0)) +
         # scale_y_continuous(breaks = seq(from = 0, to = .4, by = .1), limits = c(-.05, .45), expand = c(-.05, 0)) +
@@ -456,7 +459,7 @@ pandem_panback_line_chart
 # create two color bar chart ####
 
 # blue_grey_green
-color_palette <- tibble(hex = c("#08306B", "#2171B5", "#6BAED6", "#78909C", "#BBBE64", "#24A99C", "#2E6657"))
+color_palette <- tibble(hex = c("#08306B", "#2171B5", "#6BAED6", "#78909C", "#99ba78", "#24A99C", "#2E6657"))
 color_palette
 show_col(color_palette %>% pull(hex))
 
@@ -464,7 +467,7 @@ show_col(color_palette %>% slice(1, 3) %>% pull(hex))
 show_col(color_palette %>% slice(1, 2, 3) %>% pull(hex))
 show_col(color_palette %>% slice(1, 2, 3, 4) %>% pull(hex))
 show_col(color_palette %>% slice(1, 2, 3, 6, 7) %>% pull(hex))
-show_col(color_palette %>% slice(1, 2, 3, 4, 6, 7) %>% pull(hex))
+show_col(color_palette %>% slice(1, 2, 3, 5, 6, 7) %>% pull(hex))
 show_col(color_palette %>% slice(1, 2, 3, 4, 5, 6, 7) %>% pull(hex))
 
 # add color_bin and color
@@ -487,7 +490,7 @@ chart_data_color_list
 
 
 pandem_bar_chart <- chart_data %>% 
-        filter(group_number %in% c("1", "2", "3", "4", "6", "7")) %>%
+        filter(group_number %in% c("1", "2", "3", "5", "6", "7")) %>%
         ggplot(data = ., aes(x = fct_reorder(.f = factor(name), .x = value_1), 
                                                         y = value_1, 
                                                         fill = factor(color_bin))) +        
