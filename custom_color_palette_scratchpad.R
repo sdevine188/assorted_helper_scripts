@@ -24,30 +24,16 @@ library(jcolors)
 # this site has some limited and general guidance for charts
 # https://designsystem.digital.gov/components/data-visualizations/
 
+# automatic palette generator based off hex input
+# https://learnui.design/tools/data-color-picker.html#palette
+
+# best: w3 color hex picker
+# https://www.w3schools.com/colors/colors_picker.asp
 
 
-display.brewer.pal(n = 9, name = "Blues")
-color_palette <- brewer.pal(n = 9, name = "Blues") %>% tibble(hex = .)
-color_palette
-
-display_jcolors("pal9")
-jcolors("pal9")
-display_jcolors("pal7")
-jcolors("pal7")
-display_jcolors("pal5")
-jcolors("pal5")
-display_jcolors("pal6")
-jcolors("pal6")
-
-show_col(c("#08306B", "#2171B5", "#6BAED6"))
-show_col(c("#A4BD32", "#24A99C", "#2E6657", "#265448"))
-show_col(c("#08306B", "#2171B5", "#6BAED6", "#78909C", "#99ba78", "#24A99C", "#2E6657"))
-# "#99ba78"
-#89b166
-#009a98
-show_col(c("#89b166", "#009a98", "#2E6657"))
-
-#//////////////////////////
+#////////////////////////////////////////////////////////////////////////////////////
+#////////////////////////////////////////////////////////////////////////////////////
+#////////////////////////////////////////////////////////////////////////////////////
 
 
 # create data ####
@@ -65,7 +51,124 @@ data %>% count(group_number, name)
 data %>% print(n = nrow(.))
 
 
-#//////////////////
+#////////////////////////////////////////////////////////////////////////////////////
+#////////////////////////////////////////////////////////////////////////////////////
+#////////////////////////////////////////////////////////////////////////////////////
+
+
+# create two color bar chart ####
+
+# inspect colors
+display.brewer.pal(n = 9, name = "Blues")
+
+display_jcolors("pal9")
+jcolors("pal9")
+display_jcolors("pal7")
+jcolors("pal7")
+display_jcolors("pal5")
+jcolors("pal5")
+display_jcolors("pal6")
+jcolors("pal6")
+
+show_col(c("#08306B", "#2171B5", "#6BAED6"))
+show_col(c("#A4BD32", "#24A99C", "#2E6657", "#265448"))
+show_col(c("#08306B", "#2171B5", "#6BAED6", "#78909C", "#99ba78", "#24A99C", "#2E6657"))
+
+# create blue_grey_green custom palette
+color_palette <- tibble(hex = c("#08306B", "#2171B5", "#6BAED6", "#78909C", "#99ba78", "#24A99C", "#2E6657"))
+color_palette
+show_col(color_palette %>% pull(hex))
+
+# blue_grey_green palette supports 7 colors, plus possible extensions via fill/line type
+show_col(color_palette %>% slice(1, 3) %>% pull(hex)) # 2 colors
+show_col(color_palette %>% slice(1, 2, 3) %>% pull(hex)) # 3 colors
+show_col(color_palette %>% slice(1, 2, 3, 4) %>% pull(hex)) # 4 colors
+show_col(color_palette %>% slice(1, 2, 3, 6, 7) %>% pull(hex)) # 5 colors
+show_col(color_palette %>% slice(1, 2, 3, 5, 6, 7) %>% pull(hex)) # 6 colors
+show_col(color_palette %>% slice(1, 2, 3, 4, 5, 6, 7) %>% pull(hex)) # 7 colors
+
+# add color_bin and color
+chart_data <- data %>% mutate(color_bin = group_number,
+                              color = case_when(color_bin == "1" ~ color_palette %>% slice(1) %>% pull(hex),
+                                                color_bin == "2" ~ color_palette %>% slice(2) %>% pull(hex),
+                                                color_bin == "3" ~ color_palette %>% slice(3) %>% pull(hex),
+                                                color_bin == "4" ~ color_palette %>% slice(4) %>% pull(hex),
+                                                color_bin == "5" ~ color_palette %>% slice(5) %>% pull(hex),
+                                                color_bin == "6" ~ color_palette %>% slice(6) %>% pull(hex),
+                                                color_bin == "7" ~ color_palette %>% slice(7) %>% pull(hex)))
+
+# create color_list for to pass to scale_color_manual
+chart_data_color_list <- chart_data %>% count(color_bin, color) %>% pull(color)
+names(chart_data_color_list) <- chart_data %>% count(color_bin, color) %>% pull(color_bin)
+chart_data_color_list
+
+
+#///////////////////////
+
+
+pandem_bar_chart <- chart_data %>% 
+        filter(group_number %in% c("1", "2", "3", "5", "6", "7")) %>%
+        ggplot(data = ., aes(x = fct_reorder(.f = factor(name), .x = value_1), 
+                             y = value_1, 
+                             fill = factor(color_bin))) +        
+        geom_col() + 
+        scale_fill_manual(values = chart_data_color_list) +
+        scale_x_discrete(expand = c(0, 0)) +
+        scale_y_continuous(breaks = seq(from = 0, to = 1, by = .1), limits = c(0, 1.1), expand = c(0, 0)) +
+        labs(x = NULL, y = "Pandemic Democratic Violations Index", 
+             title = NULL,
+             caption = NULL, fill = "") +
+        # coord_fixed(ratio = 1/.05, clip = "off") +
+        theme_bw() +
+        theme(
+                # plot.background = element_rect(fill = "blue"),
+                plot.margin = unit(c(0, 0, 0, 0), "mm"),
+                plot.caption = element_text(hjust = 0, size = 11, face = "plain", family = "Calibri", 
+                                            color = "#000000", margin = margin(t = 4, r = 0, b = 0, l = 0)),
+                # text = element_text(family = "Calibri", size = 46, face = "plain", color = "#000000"),
+                panel.grid.minor = element_blank(),
+                panel.grid.major.x = element_line(color = "#DDDDDD"),
+                panel.grid.major.y = element_blank(),
+                # panel.grid.major.y = element_line(color = "#000000"),
+                panel.border = element_blank(),
+                # panel.grid = element_blank(),
+                # line = element_blank(),
+                # rect = element_blank(),
+                # axis.ticks.y = element_blank(),
+                # axis.ticks.x = element_blank(),
+                axis.ticks.length.y.left = unit(.2, "cm"),
+                axis.ticks.length.x.bottom = unit(.2, "cm"),
+                axis.text.x = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
+                                           margin = margin(t = 5, r = 0, b = 0, l = 0)),
+                axis.text.y = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
+                                           margin = margin(t = 0, r = 5, b = 0, l = 0)),
+                axis.line.x.bottom = element_line(color = "#595959"),
+                axis.line.y.left = element_line(color = "#595959"),
+                axis.title.x = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
+                                            margin = margin(t = 8, r = 0, b = 5, l = 0)),
+                axis.title.y = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
+                                            margin = margin(t = 0, r = 5, b = 0, l = 0)),
+                plot.title = element_text(size = 16, face = "bold", hjust = .5, family = "Calibri", color = "#000000", 
+                                          margin = margin(t = 0, r = 0, b = 10, l = 0, unit = "pt")),
+                legend.position = "bottom",
+                # legend.key.size = unit(2, "mm"), 
+                legend.title = element_text(size = 12, family = "Calibri", face = "plain"),
+                legend.text = element_text(size = 12, family = "Calibri", margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"), 
+                                           hjust = .5)
+                # legend.spacing.y = unit(5.5, "cm"),
+                # legend.key = element_rect(size = 5),
+                # legend.key.size = unit(2, 'lines')
+        ) + 
+        coord_flip()
+
+
+# inspect
+pandem_bar_chart
+
+
+#/////////////////////////////////////////////////////////////////////////////////////////////
+#/////////////////////////////////////////////////////////////////////////////////////////////
+#/////////////////////////////////////////////////////////////////////////////////////////////
 
 
 # blue_grey_green
@@ -463,12 +566,13 @@ color_palette <- tibble(hex = c("#08306B", "#2171B5", "#6BAED6", "#78909C", "#99
 color_palette
 show_col(color_palette %>% pull(hex))
 
-show_col(color_palette %>% slice(1, 3) %>% pull(hex))
-show_col(color_palette %>% slice(1, 2, 3) %>% pull(hex))
-show_col(color_palette %>% slice(1, 2, 3, 4) %>% pull(hex))
-show_col(color_palette %>% slice(1, 2, 3, 6, 7) %>% pull(hex))
-show_col(color_palette %>% slice(1, 2, 3, 5, 6, 7) %>% pull(hex))
-show_col(color_palette %>% slice(1, 2, 3, 4, 5, 6, 7) %>% pull(hex))
+# palette supports 7 colors, plus possible extensions via fill/line type
+show_col(color_palette %>% slice(1, 3) %>% pull(hex)) # 2 colors
+show_col(color_palette %>% slice(1, 2, 3) %>% pull(hex)) # 3 colors
+show_col(color_palette %>% slice(1, 2, 3, 4) %>% pull(hex)) # 4 colors
+show_col(color_palette %>% slice(1, 2, 3, 6, 7) %>% pull(hex)) # 5 colors
+show_col(color_palette %>% slice(1, 2, 3, 5, 6, 7) %>% pull(hex)) # 6 colors
+show_col(color_palette %>% slice(1, 2, 3, 4, 5, 6, 7) %>% pull(hex)) # 7 colors
 
 # add color_bin and color
 chart_data <- data %>% mutate(color_bin = group_number,
