@@ -1,5 +1,6 @@
 library(tidyverse)
 library(jcolors)
+library(viridis)
 
 # this WCAG 2.0 guidance specifically says it doesn't officially apply to charts, 
 # though charts should still take contrast into account; the guidance is more focused on web design
@@ -58,8 +59,28 @@ data %>% print(n = nrow(.))
 
 # create two color bar chart ####
 
+# final pick is blue_grey
+# us web design system advocates blue_grey palette as 508 compliant contrast, 
+# https://v1.designsystem.digital.gov/components/colors/
+# though my palette takes the blues and greys from R Color Brewer
+# and us .gov data visualization standards explicitly recommends R Color Brewer as a best practice for 508 compliant contrast
+# https://xdgov.github.io/data-design-standards/components/colors
+
 # inspect colors
-display.brewer.pal(n = 9, name = "Blues")
+brewer.blues(9)
+display.brewer.pal(n = 10, name = "Blues")
+brewer.blues(10)
+brewer.greys(10)
+display.brewer.pal(n = 9, name = "Greys")
+
+
+show_col(viridis_pal()(7))
+color_palette <- tibble(hex = viridis_pal()(7))
+
+# create blue_grey color palette
+show_col(c("#112e51", "#205493", "#0071bc", "#aeb0b5", "#323a45"))
+show_col(c("#08306B", "#08519C", "#4292C6", "#9ECAE1", "#BDBDBD", "#737373", "#484848"))
+color_palette <- tibble(hex = c("#08306B", "#08519C", "#4292C6", "#9ECAE1", "#BDBDBD", "#737373", "#484848"))
 
 display_jcolors("pal9")
 jcolors("pal9")
@@ -75,16 +96,16 @@ show_col(c("#A4BD32", "#24A99C", "#2E6657", "#265448"))
 show_col(c("#08306B", "#2171B5", "#6BAED6", "#78909C", "#99ba78", "#24A99C", "#2E6657"))
 
 # create blue_grey_green custom palette
-color_palette <- tibble(hex = c("#08306B", "#2171B5", "#6BAED6", "#78909C", "#99ba78", "#24A99C", "#2E6657"))
-color_palette
-show_col(color_palette %>% pull(hex))
+# color_palette <- tibble(hex = c("#08306B", "#2171B5", "#6BAED6", "#78909C", "#99ba78", "#24A99C", "#2E6657"))
+# color_palette
+# show_col(color_palette %>% pull(hex))
 
-# blue_grey_green palette supports 7 colors, plus possible extensions via fill/line type
-show_col(color_palette %>% slice(1, 3) %>% pull(hex)) # 2 colors
-show_col(color_palette %>% slice(1, 2, 3) %>% pull(hex)) # 3 colors
+# blue_grey palette supports 7 colors, plus possible extensions via fill/line type
+show_col(color_palette %>% slice(1, 4) %>% pull(hex)) # 2 colors
+show_col(color_palette %>% slice(1, 3, 4) %>% pull(hex)) # 3 colors
 show_col(color_palette %>% slice(1, 2, 3, 4) %>% pull(hex)) # 4 colors
-show_col(color_palette %>% slice(1, 2, 3, 6, 7) %>% pull(hex)) # 5 colors
-show_col(color_palette %>% slice(1, 2, 3, 5, 6, 7) %>% pull(hex)) # 6 colors
+show_col(color_palette %>% slice(1, 2, 3, 4, 5) %>% pull(hex)) # 5 colors
+show_col(color_palette %>% slice(1, 2, 3, 4, 5, 6) %>% pull(hex)) # 6 colors
 show_col(color_palette %>% slice(1, 2, 3, 4, 5, 6, 7) %>% pull(hex)) # 7 colors
 
 # add color_bin and color
@@ -107,7 +128,7 @@ chart_data_color_list
 
 
 pandem_bar_chart <- chart_data %>% 
-        filter(group_number %in% c("1", "2", "3", "5", "6", "7")) %>%
+        filter(group_number %in% c("1", "4")) %>%
         ggplot(data = ., aes(x = fct_reorder(.f = factor(name), .x = value_1), 
                              y = value_1, 
                              fill = factor(color_bin))) +        
