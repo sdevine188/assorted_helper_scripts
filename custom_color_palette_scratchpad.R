@@ -102,10 +102,10 @@ show_col(c("#08306B", "#2171B5", "#6BAED6", "#78909C", "#99ba78", "#24A99C", "#2
 
 # blue_grey palette supports 7 colors, plus possible extensions via fill/line type
 show_col(color_palette %>% slice(1, 4) %>% pull(hex)) # 2 colors
-show_col(color_palette %>% slice(1, 3, 4) %>% pull(hex)) # 3 colors
+show_col(color_palette %>% slice(1, 2, 4) %>% pull(hex)) # 3 colors
 show_col(color_palette %>% slice(1, 2, 3, 4) %>% pull(hex)) # 4 colors
-show_col(color_palette %>% slice(1, 2, 3, 4, 5) %>% pull(hex)) # 5 colors
-show_col(color_palette %>% slice(1, 2, 3, 4, 5, 6) %>% pull(hex)) # 6 colors
+show_col(color_palette %>% slice(1, 2, 4, 6, 7) %>% pull(hex)) # 5 colors
+show_col(color_palette %>% slice(1, 2, 4, 5, 6, 7) %>% pull(hex)) # 6 colors
 show_col(color_palette %>% slice(1, 2, 3, 4, 5, 6, 7) %>% pull(hex)) # 7 colors
 
 # add color_bin and color
