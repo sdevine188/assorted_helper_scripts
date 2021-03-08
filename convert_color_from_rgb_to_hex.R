@@ -5,6 +5,9 @@
 # setwd(current_wd)
 
 
+library(grDevices)
+library(scales)
+
 
 
 # convert rgb color values to hex color
@@ -15,3 +18,13 @@
 convert_color_from_rgb_to_hex <- function(r, g, b) {
         rgb(r, g, b, maxColorValue = 255)
 }
+
+
+#///////////////////////////////
+
+
+# test
+colors()
+col2rgb(col = "darkorchid4")
+convert_color_from_rgb_to_hex(r = 104, g = 34, b = 139) 
+c("darkorchid4", "#68228B") %>% show_col()
