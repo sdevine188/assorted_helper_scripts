@@ -63,8 +63,8 @@ convert_color_from_rgb_to_hex <- function(r, g, b) {
 
 # create color_palette ####
 
-# final pick is blue_grey_green
-# note that priority of use will be blues, then greys, and then greens
+# final pick is blue_grey_green-ish
+# note that priority of use will be blues, then greys, and then greens (with yellow and purple last)
 # us web design system advocates blue_grey palette as 508 compliant contrast, 
 # https://v1.designsystem.digital.gov/components/colors/
 # though my palette takes the blues and greys from R Color Brewer
@@ -72,7 +72,7 @@ convert_color_from_rgb_to_hex <- function(r, g, b) {
 # https://xdgov.github.io/data-design-standards/components/colors
 
 color_palette <- tibble(hex = c("#08306B", "#2474B6", "#8BBFD0", "#BEBEBE", "#636363", 
-                                "#99ba78", "#24A99C", "#355e3b", "#E4DC68", "#7A378B"))
+                                "#99ba78", "#35B779FF", "#355e3b", "#E4DC68", "#7A378B"))
 color_palette %>% pull(hex) %>% show_col()
 
 
@@ -118,16 +118,14 @@ c("#BEBEBE", "#636363") %>% show_col()
 
 # inspect greens
 # the final selection is "#99ba78", "#24A99C", "#355e3b"
-# note the origin of these is a bit of a hack, and i didn't record where they all came from
-# "#99ba78" and "#24A99C" have unknown origin; 
+# "#99ba78" has unknown origin; 
+# "#35B779FF" is from show_col(viridis_pal()(10)), col 3, row 2
 # "#355e3b" was just googling "hunter green"; https://www.colorhexa.com/355e3b
 # "#FFFF80" was from colorRamp::primary.colors() col 6, row 3
-c("#FFFF80", "#99ba78", "#24A99C", "#355e3b") %>% show_col()
-c("#E4DC68", "#99ba78", "#24A99C", "#355e3b") %>% show_col()
+c("#E4DC68", "#99ba78", "#35B779FF", "#355e3b") %>% show_col()
 
-
-viridis_pal()(20)
-show_col(viridis_pal()(20))
+viridis_pal()(10)
+show_col(viridis_pal()(10))
 primary.colors() %>% show_col()
 heat_hcl(12) %>% show_col()
 
