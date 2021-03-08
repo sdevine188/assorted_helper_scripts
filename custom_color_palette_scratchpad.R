@@ -75,6 +75,17 @@ color_palette <- tibble(hex = c("#08306B", "#2474B6", "#8BBFD0", "#BEBEBE", "#63
                                 "#99ba78", "#35B779FF", "#355e3b", "#E4DC68", "#7A378B"))
 color_palette %>% pull(hex) %>% show_col()
 
+# color_palette supports 7 colors, plus possible extensions via fill/line type
+show_col(color_palette %>% slice(1, 3) %>% pull(hex)) # 2 colors
+show_col(color_palette %>% slice(1, 2, 3) %>% pull(hex)) # 3 colors
+show_col(color_palette %>% slice(1, 2, 3, 4) %>% pull(hex)) # 4 colors
+show_col(color_palette %>% slice(1, 2, 3, 4, 5) %>% pull(hex)) # 5 colors
+show_col(color_palette %>% slice(1, 2, 3, 6, 7, 8) %>% pull(hex)) # 6 colors
+show_col(color_palette %>% slice(1, 2, 3, 4, 6, 7, 8) %>% pull(hex)) # 7 colors
+show_col(color_palette %>% slice(1, 2, 3, 4, 5, 6, 7, 8) %>% pull(hex)) # 8 colors
+show_col(color_palette %>% slice(1, 2, 3, 4, 5, 6, 7, 8, 9) %>% pull(hex)) # 9 colors
+show_col(color_palette %>% slice(1, 2, 3, 4, 5, 6, 7, 8, 9, 10) %>% pull(hex)) # 10 colors
+
 
 #//////////////////////////////////////////////////////////////////////////////////
 
