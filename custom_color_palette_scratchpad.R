@@ -71,13 +71,13 @@ convert_color_from_rgb_to_hex <- function(r, g, b) {
 # and us .gov data visualization standards explicitly recommends R Color Brewer as a best practice for 508 compliant contrast
 # https://xdgov.github.io/data-design-standards/components/colors
 
-color_palette <- tibble(hex = c("#08306B", "#2474B6", "#8BBFD0", 
-                                "#CBCBCB", "#7D7D7D", "#424242",
-                                "#99ba78", "#35B779FF", "#355e3b", 
+color_palette <- tibble(hex = c("#083D7F", "#2474B6", "#8BBFD0",
+                                "#CBCBCB", "#919191", "#585858",
+                                "#99ba78", "#35B779FF", "#006629", 
                                 "#E4DC68", "#7A378B"))
 color_palette %>% pull(hex) %>% show_col()
 
-# color_palette supports 7 colors, plus possible extensions via fill/line type
+# color_palette supports 11 colors, plus possible extensions via fill/line type
 show_col(color_palette %>% slice(1, 3) %>% pull(hex)) # 2 colors
 show_col(color_palette %>% slice(1, 2, 3) %>% pull(hex)) # 3 colors
 show_col(color_palette %>% slice(1, 2, 3, 4) %>% pull(hex)) # 4 colors
@@ -98,19 +98,13 @@ show_col(color_palette %>% slice(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11) %>% pull(hex
 # inspect blues
 brewer.blues(10) %>% show_col()
 brewer.blues(20) %>% show_col()
-heat_hcl(12, h = c(0, -100), l = c(75, 40), c = c(40, 80), power = 1) %>% show_col()
-viridis_pal()(20) %>% show_col()
 
-colors()
-col2rgb(col = "mediumorchid4")
-convert_color_from_rgb_to_hex(r = 122, g = 55, b = 139)
-c("mediumorchid4", "#7A378B") %>% show_col()
-
-
-# note the final selection is "#68228B", "#08306B", "#2474B6", "#8BBFD0", which is drawn from brewer.blues(20) %>% show_col()
-# 5th col / rows 4 and 5; and 4th col
-# "#7A378B is drawn from col2rgb(col = "mediumorchid4") based on grDevices library
-c("#7A378B", "#08306B", "#2474B6", "#8BBFD0") %>% show_col()
+# final selection is drawn from brewer.blues(20) %>% show_col()
+# #083D7F is col 4, row 4
+# #2474B6 is col 5, row 3
+# #8BBFD0 is col4, row 2
+c("#08306B", "#2474B6", "#8BBFD0") %>% show_col()
+c("#083D7F", "#2474B6", "#8BBFD0") %>% show_col()
 
 
 #/////////////////////
@@ -123,10 +117,9 @@ brewer.greys(30) %>% show_col()
 
 # note the final selection is "#BEBEBE", "#636363"
 # "#CBCBCB" is drawn from brewer.greys(30) %>% show_col(), col 4, row 2
-# "#7D7D7D" is drawn from brewer.greys(30) %>% show_col(), col 6, row 3
-# "#424242" is drawn from brewer.greys(30) %>% show_col(), col 6, row 4
-c("#CBCBCB", "#7D7D7D", "#424242") %>% show_col()
-
+# "#919191" is drawn from brewer.greys(30) %>% show_col(), col 4, row 3
+# "#585858" is drawn from brewer.greys(30) %>% show_col(), col 4, row 4
+c("#CBCBCB", "#919191", "#585858") %>% show_col()
 
 
 #//////////////////
@@ -136,14 +129,18 @@ c("#CBCBCB", "#7D7D7D", "#424242") %>% show_col()
 # the final selection is "#99ba78", "#24A99C", "#355e3b"
 # "#99ba78" has unknown origin; 
 # "#35B779FF" is from show_col(viridis_pal()(10)), col 3, row 2
-# "#355e3b" was just googling "hunter green"; https://www.colorhexa.com/355e3b
+# "#006629" is from brewer.greens(20) %>% show_col(), col 3, row 4
 # "#FFFF80" was from colorRamp::primary.colors() col 6, row 3
-c("#E4DC68", "#99ba78", "#35B779FF", "#355e3b") %>% show_col()
+c("#E4DC68", "#99ba78", "#35B779FF", "#006629") %>% show_col()
+
 
 viridis_pal()(10)
 show_col(viridis_pal()(10))
 primary.colors() %>% show_col()
 heat_hcl(12) %>% show_col()
+brewer.greens(10) %>% show_col()
+brewer.greens(20) %>% show_col()
+
 
 display_jcolors("pal9")
 jcolors("pal9")
