@@ -7,6 +7,7 @@ library(pals)
 library(colorspace)
 library(colorRamps)
 library(ggrepel)
+library(Polychrome)
 
 # this WCAG 2.0 guidance specifically says it doesn't officially apply to charts, 
 # though charts should still take contrast into account; the guidance is more focused on web design
@@ -61,10 +62,27 @@ convert_color_from_rgb_to_hex <- function(r, g, b) {
 #////////////////////////////////////////////////////////////////////////////////////
 
 
+# create random but distinctive polychrome_palette of any length
+# https://cran.r-project.org/web/packages/Polychrome/vignettes/creatingPalettes.html
+polychrome_palette <- createPalette(N = 48, seedcolors = c("#000000"), M = 50000)
+polychrome_palette
+polychrome_palette %>% swatch()
+
+starwars %>% add_count(homeworld) %>% ggplot(data = ., mapping = aes(x = fct_reorder(.f = homeworld, .x = n, .desc = FALSE), 
+                                                                     y = n, fill = homeworld)) +
+        geom_col() +
+        scale_fill_manual(values = unname(polychrome_palette))
+
+
+#////////////////////////////////////////////////////////////////////////////////////
+#////////////////////////////////////////////////////////////////////////////////////
+#////////////////////////////////////////////////////////////////////////////////////
+
+
 # create color_palette ####
 
-# final pick is blue_grey_green-ish
-# note that priority of use will be blues, then greys, and then greens (with yellow and purple last)
+# final pick is blue_grey_green, with yellow and purple as extra colors when needed
+# note that priority of use will be blues, then greys, and then greens (with yellow and purples last)
 # us web design system advocates blue_grey palette as 508 compliant contrast, 
 # https://v1.designsystem.digital.gov/components/colors/
 # though my palette takes the blues and greys from R Color Brewer
@@ -72,9 +90,9 @@ convert_color_from_rgb_to_hex <- function(r, g, b) {
 # https://xdgov.github.io/data-design-standards/components/colors
 
 color_palette <- tibble(hex = c("#083D7F", "#2474B6", "#8BBFD0",
-                                "#CBCBCB", "#919191", "#585858",
+                                "#CBCBCB", "#7D7D7D",
                                 "#99ba78", "#35B779FF", "#006629", 
-                                "#E4DC68", "#7A378B"))
+                                "#E4DC68", "#8B008B", "#DA70D6"))
 color_palette %>% pull(hex) %>% show_col()
 
 # color_palette supports 11 colors, plus possible extensions via fill/line type
@@ -117,30 +135,31 @@ brewer.greys(30) %>% show_col()
 
 # note the final selection is "#BEBEBE", "#636363"
 # "#CBCBCB" is drawn from brewer.greys(30) %>% show_col(), col 4, row 2
-# "#919191" is drawn from brewer.greys(30) %>% show_col(), col 4, row 3
-# "#585858" is drawn from brewer.greys(30) %>% show_col(), col 4, row 4
-c("#CBCBCB", "#919191", "#585858") %>% show_col()
+# "#7D7D7D" is drawn from brewer.greys(30) %>% show_col(), col 6, row 3
+# historic: "#919191" is drawn from brewer.greys(30) %>% show_col(), col 4, row 3
+# historic: "#585858" is drawn from brewer.greys(30) %>% show_col(), col 4, row 4
+c("#CBCBCB", "#7D7D7D") %>% show_col()
 
 
 #//////////////////
 
 
 # inspect greens
-# the final selection is "#99ba78", "#24A99C", "#355e3b"
-# "#99ba78" has unknown origin; 
 # "#35B779FF" is from show_col(viridis_pal()(10)), col 3, row 2
 # "#006629" is from brewer.greens(20) %>% show_col(), col 3, row 4
-# "#FFFF80" was from colorRamp::primary.colors() col 6, row 3
+# "#E4DC68" was from colorspace::heat_hcl(12) %>% show_col(), col 3, row 3
+# "#99ba78" not sure where i got it???
 c("#E4DC68", "#99ba78", "#35B779FF", "#006629") %>% show_col()
 
 
 viridis_pal()(10)
 show_col(viridis_pal()(10))
-primary.colors() %>% show_col()
+show_col(viridis_pal()(20))
+primary.colors(30) %>% show_col()
 heat_hcl(12) %>% show_col()
 brewer.greens(10) %>% show_col()
 brewer.greens(20) %>% show_col()
-
+# https://www.rapidtables.com/web/color/green-color.html
 
 display_jcolors("pal9")
 jcolors("pal9")
@@ -150,6 +169,24 @@ display_jcolors("pal5")
 jcolors("pal5")
 display_jcolors("pal6")
 jcolors("pal6")
+c("#93C572", "#99ba78") %>% show_col()
+terrain_hcl(12, c = c(65, 0), l = c(45, 95), power = c(1/3, 1.5)) %>% show_col()
+terrain_hcl(12, h = c(130, 43), c = 100, l = c(70, 90)) %>% show_col()
+x <- colorRampPalette(c("olivedrab3"))
+x(1)
+brewer.piyg(10) %>% show_col()
+
+
+#//////////////////
+
+
+# inspect purples
+# https://www.rapidtables.com/web/color/purple-color.html
+# #8B008B and #DA70D6 are from rapidtables.com
+viridis_pal()(10)
+show_col(viridis_pal()(20))
+brewer.purples(20) %>% show_col()
+c("#8B008B", "#7A378B", "#DA70D6") %>% show_col()
 
 
 #////////////////////////////////////////////////////////////////////////////////////////////////////////
