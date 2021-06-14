@@ -92,7 +92,8 @@ starwars %>% add_count(homeworld) %>% ggplot(data = ., mapping = aes(x = fct_reo
 color_palette <- tibble(hex = c("#083D7F", "#2474B6", "#8BBFD0",
                                 "#CBCBCB", "#7D7D7D",
                                 "#99ba78", "#35B779FF", "#006629", 
-                                "#E4DC68", "#8B008B", "#DA70D6"))
+                                "#E4DC68", "#FA8533", "#E5590A", "#DD2A24",
+                                "#8B008B", "#DA70D6"))
 color_palette %>% pull(hex) %>% show_col()
 
 # color_palette supports 11 colors, plus possible extensions via fill/line type
@@ -113,7 +114,7 @@ show_col(color_palette %>% slice(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11) %>% pull(hex
 
 # scratchpad to inspect alternative colors
 
-# inspect blues
+# inspect blues ####
 brewer.blues(10) %>% show_col()
 brewer.blues(20) %>% show_col()
 
@@ -128,7 +129,7 @@ c("#083D7F", "#2474B6", "#8BBFD0") %>% show_col()
 #/////////////////////
 
 
-# inspect greys
+# inspect greys ####
 brewer.greys(10) %>% show_col()
 brewer.greys(20) %>% show_col()
 brewer.greys(30) %>% show_col()
@@ -144,7 +145,7 @@ c("#CBCBCB", "#7D7D7D") %>% show_col()
 #//////////////////
 
 
-# inspect greens
+# inspect greens ####
 # "#35B779FF" is from show_col(viridis_pal()(10)), col 3, row 2
 # "#006629" is from brewer.greens(20) %>% show_col(), col 3, row 4
 # "#E4DC68" was from colorspace::heat_hcl(12) %>% show_col(), col 3, row 3
@@ -180,7 +181,20 @@ brewer.piyg(10) %>% show_col()
 #//////////////////
 
 
-# inspect purples
+# inspect oranges/red ####
+# https://www.rapidtables.com/web/color/purple-color.html
+# #FA8533 from brewer.oranges(20), row 3, col 1
+# E5590A from brewer.oranges(20), row 3, col 4
+# DD2A24 from brewer.reds(20), row 3, col 4
+brewer.oranges(20) %>% show_col()
+brewer.reds(20) %>% show_col()
+c("#FA8533", "#E5590A", "#DD2A24") %>% show_col()
+
+
+#//////////////////
+
+
+# inspect purples ####
 # https://www.rapidtables.com/web/color/purple-color.html
 # #8B008B and #DA70D6 are from rapidtables.com
 viridis_pal()(10)
@@ -196,21 +210,22 @@ c("#8B008B", "#7A378B", "#DA70D6") %>% show_col()
 
 
 # create data ####
-data <- tibble(group_number = as.character(c(rep(seq(from = 1, to = 5, by = 1), times = 11))),
-               name = starwars %>% slice(1:55) %>% pull(name),
-               value_1 = sample(seq(from = .1, to = 1, by = .1), size = 55, replace = TRUE),
-               value_2 = sample(seq(from = .1, to = 1, by = .1), size = 55, replace = TRUE),
-               measure_1 = sample(seq(from = .1, to = 1, by = .1), size = 55, replace = TRUE),
-               measure_2 = sample(seq(from = .1, to = 1, by = .1), size = 55, replace = TRUE),
-               measure_3 = sample(seq(from = .1, to = 1, by = .1), size = 55, replace = TRUE),
-               measure_4 = sample(seq(from = .1, to = 1, by = .1), size = 55, replace = TRUE)) %>%
+data <- tibble(group_number = as.character(c(rep(seq(from = 1, to = 5, by = 1), times = 14))),
+               name = starwars %>% slice(1:70) %>% pull(name),
+               value_1 = sample(seq(from = .1, to = 1, by = .1), size = 70, replace = TRUE),
+               value_2 = sample(seq(from = .1, to = 1, by = .1), size = 70, replace = TRUE),
+               measure_1 = sample(seq(from = .1, to = 1, by = .1), size = 70, replace = TRUE),
+               measure_2 = sample(seq(from = .1, to = 1, by = .1), size = 70, replace = TRUE),
+               measure_3 = sample(seq(from = .1, to = 1, by = .1), size = 70, replace = TRUE),
+               measure_4 = sample(seq(from = .1, to = 1, by = .1), size = 70, replace = TRUE)) %>%
         arrange(group_number) %>%
-        mutate(color_group = as.character(c(rep(seq(from = 1, to = 11, by = 1), times = 5))))
+        mutate(color_group = as.character(c(rep(seq(from = 1, to = 14, by = 1), times = 5))))
 
 # inspect
 data
 data %>% count(group_number)
 data %>% count(group_number, name)
+data %>% count(color_group) %>% arrange(as.numeric(color_group))
 data %>% print(n = nrow(.))
 
 
@@ -229,7 +244,10 @@ chart_data <- data %>% mutate(color_bin = color_group,
                                                 color_bin == "8" ~ color_palette %>% slice(8) %>% pull(hex),
                                                 color_bin == "9" ~ color_palette %>% slice(9) %>% pull(hex),
                                                 color_bin == "10" ~ color_palette %>% slice(10) %>% pull(hex),
-                                                color_bin == "11" ~ color_palette %>% slice(11) %>% pull(hex)))
+                                                color_bin == "11" ~ color_palette %>% slice(11) %>% pull(hex),
+                                                color_bin == "12" ~ color_palette %>% slice(12) %>% pull(hex),
+                                                color_bin == "13" ~ color_palette %>% slice(13) %>% pull(hex),
+                                                color_bin == "14" ~ color_palette %>% slice(14) %>% pull(hex)))
 
 # create color_list for to pass to scale_color_manual
 chart_data_color_list <- chart_data %>% count(color_bin, color) %>% pull(color)
@@ -295,8 +313,6 @@ stacked_bar_chart <- chart_data %>%
 stacked_bar_chart
         
         
-
-
 #/////////////////////////////////////////////////////////////////////////////////////////////
 #/////////////////////////////////////////////////////////////////////////////////////////////
 #/////////////////////////////////////////////////////////////////////////////////////////////
@@ -306,7 +322,7 @@ stacked_bar_chart
 scatterplot <- chart_data %>% 
         ggplot(data = ., aes(x = value_1, y = value_2, label = name,
                              color = factor(color_bin, 
-                                            levels = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11")))) +
+                        levels = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15")))) +
         geom_point(size = 6) + 
         geom_text_repel(fontface = "bold", point.padding = .2, size = 4) +
         scale_color_manual(values = chart_data_color_list) +
@@ -442,7 +458,7 @@ jitter_plot
 bar_chart <- chart_data %>% ggplot(data = ., aes(x = fct_reorder(.f = factor(name), .x = value_1), 
                                                         y = value_1, 
                                                         fill = factor(color_bin, 
-                                                levels = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11")))) +        
+                        levels = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14")))) +        
         geom_col() + 
         scale_fill_manual(values = chart_data_color_list) +
         scale_x_discrete(expand = c(0, 0)) +
@@ -514,9 +530,12 @@ chart_data <- tibble(group_number = c(rep(1, times = 10),
                                rep(8, times = 10),
                                rep(9, times = 10),
                                rep(10, times = 10),
-                               rep(11, times = 10)),
-                     year = rep(seq(from = 2011, to = 2020, by = 1), times = 11),
-                     value = sample(seq(from = 1, to = 5), size = 110, replace = TRUE))
+                               rep(11, times = 10),
+                               rep(12, times = 10),
+                               rep(13, times = 10),
+                               rep(14, times = 10)),
+                     year = rep(seq(from = 2011, to = 2020, by = 1), times = 14),
+                     value = sample(seq(from = 1, to = 5), size = 140, replace = TRUE))
 chart_data
 chart_data %>% count(group_number)
 
@@ -536,7 +555,10 @@ chart_data <- chart_data %>% mutate(color_bin = group_number,
                                                 color_bin == "8" ~ color_palette %>% slice(8) %>% pull(hex),
                                                 color_bin == "9" ~ color_palette %>% slice(9) %>% pull(hex),
                                                 color_bin == "10" ~ color_palette %>% slice(10) %>% pull(hex),
-                                                color_bin == "11" ~ color_palette %>% slice(11) %>% pull(hex)))
+                                                color_bin == "11" ~ color_palette %>% slice(11) %>% pull(hex),
+                                                color_bin == "12" ~ color_palette %>% slice(12) %>% pull(hex),
+                                                color_bin == "13" ~ color_palette %>% slice(13) %>% pull(hex),
+                                                color_bin == "14" ~ color_palette %>% slice(14) %>% pull(hex)))
 
 # create color_list for to pass to scale_color_manual
 chart_data_color_list <- chart_data %>% count(color_bin, color) %>% pull(color)
@@ -551,7 +573,7 @@ chart_data_color_list
 line_chart <- chart_data %>% 
         ggplot(data = ., aes(x = year, y = value, 
                              color = factor(color_bin, 
-                                            levels = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11")))) +
+                                levels = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14")))) +
         geom_line(size = 2) + 
         geom_point(size = 4) + 
         scale_color_manual(values = chart_data_color_list) +
