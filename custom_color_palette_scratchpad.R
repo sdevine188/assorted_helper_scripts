@@ -92,7 +92,7 @@ starwars %>% add_count(homeworld) %>% ggplot(data = ., mapping = aes(x = fct_reo
 color_palette <- tibble(hex = c("#083D7F", "#2474B6", "#8BBFD0",
                                 "#CBCBCB", "#7D7D7D",
                                 "#99ba78", "#35B779FF", "#006629", 
-                                "#E4DC68", "#FA8533", "#E5590A", "#DD2A24",
+                                "#E4DC68", "#FDA159", "#EF6712", "#CE1B1E",
                                 "#8B008B", "#DA70D6"))
 color_palette %>% pull(hex) %>% show_col()
 
@@ -183,12 +183,13 @@ brewer.piyg(10) %>% show_col()
 
 # inspect oranges/red ####
 # https://www.rapidtables.com/web/color/purple-color.html
-# #FA8533 from brewer.oranges(20), row 3, col 1
-# E5590A from brewer.oranges(20), row 3, col 4
-# DD2A24 from brewer.reds(20), row 3, col 4
+# https://htmlcolorcodes.com/colors/shades-of-orange/
+# #FDA159 from brewer.oranges(20), row 2, col 4
+# #EF6712 from brewer.oranges(20), row 3, col 3
+# "#CE1B1E" from brewer.reds(20), row 3, col 5
 brewer.oranges(20) %>% show_col()
 brewer.reds(20) %>% show_col()
-c("#FA8533", "#E5590A", "#DD2A24") %>% show_col()
+c("#FDA159", "#EF6712", "#CE1B1E") %>% show_col()
 
 
 #//////////////////
@@ -574,8 +575,8 @@ line_chart <- chart_data %>%
         ggplot(data = ., aes(x = year, y = value, 
                              color = factor(color_bin, 
                                 levels = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14")))) +
-        geom_line(size = 2) + 
-        geom_point(size = 4) + 
+        geom_line(size = 1) + 
+        # geom_point(size = 4) + 
         scale_color_manual(values = chart_data_color_list) +
         # scale_x_discrete(expand = c(0, 0)) +
         # scale_y_continuous(breaks = seq(from = 0, to = .4, by = .1), limits = c(-.05, .45), expand = c(-.05, 0)) +
@@ -604,22 +605,22 @@ line_chart <- chart_data %>%
                 # axis.ticks.x = element_blank(),
                 axis.ticks.length.y.left = unit(.2, "cm"),
                 axis.ticks.length.x.bottom = unit(.2, "cm"),
-                axis.text.x = element_text(family = "Calibri", face = "plain", size = 14, color = "#000000", 
+                axis.text.x = element_text(family = "Calibri", face = "plain", size = 9, color = "#000000", 
                                            margin = margin(t = 5, r = 0, b = 0, l = 0)),
-                axis.text.y = element_text(family = "Calibri", face = "plain", size = 14, color = "#000000", 
+                axis.text.y = element_text(family = "Calibri", face = "plain", size = 9, color = "#000000", 
                                            margin = margin(t = 0, r = 5, b = 0, l = 0)),
                 axis.line.x.bottom = element_line(color = "#595959"),
                 axis.line.y.left = element_line(color = "#595959"),
-                axis.title.x = element_text(family = "Calibri", face = "plain", size = 14, color = "#000000", 
+                axis.title.x = element_text(family = "Calibri", face = "plain", size = 9, color = "#000000", 
                                             margin = margin(t = 8, r = 0, b = 5, l = 0)),
-                axis.title.y = element_text(family = "Calibri", face = "plain", size = 14, color = "#000000", 
+                axis.title.y = element_text(family = "Calibri", face = "plain", size = 9, color = "#000000", 
                                             margin = margin(t = 0, r = 5, b = 0, l = 0)),
                 plot.title = element_text(size = 18, face = "bold", hjust = .5, family = "Calibri", color = "#000000", 
                                           margin = margin(t = 0, r = 0, b = 10, l = 0, unit = "pt")),
                 legend.position = "bottom",
                 # legend.key.size = unit(2, "mm"), 
-                legend.title = element_text(size = 14, family = "Calibri", face = "plain"),
-                legend.text = element_text(size = 14, family = "Calibri", margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"), 
+                legend.title = element_text(size = 9, family = "Calibri", face = "plain"),
+                legend.text = element_text(size = 9, family = "Calibri", margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"), 
                                            hjust = .5)
                 # legend.spacing.y = unit(5.5, "cm"),
                 # legend.key = element_rect(size = 5),
