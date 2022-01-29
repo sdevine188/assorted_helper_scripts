@@ -180,34 +180,34 @@ add_crossed_dummies <- function(data, vars, drop_vars = FALSE, prefix = NULL, su
 # # test add_dummies()
 # # note that list columns are removed since add_crossed_dummies throws warning with them
 # starwars_data <- starwars %>% select(-c(films, vehicles, starships))
-starwars_data %>% add_crossed_dummies(vars = "gender") %>% glimpse()
-starwars_data %>% add_crossed_dummies(vars = "gender", prefix = "dummy_") %>% select(matches("gender."))
-starwars_data %>% add_crossed_dummies(vars = gender, suffix = "_dummy") %>% select(starts_with("gender"))
-starwars_data %>% add_crossed_dummies(vars = vars(gender), drop_vars = TRUE) %>% select(starts_with("gender"))
-starwars_data %>% filter(gender %in% c("masculine", "feminine")) %>%
-        mutate(movie = ifelse(row_number() < 40, "prequel", "sequel")) %>%
-        add_crossed_dummies(vars = vars(gender, movie)) %>%
-        select(gender, movie, matches("gender|movie")) %>%
-        sample_n(10)
-starwars_data %>% filter(gender %in% c("masculine", "feminine")) %>%
-        mutate(movie = ifelse(row_number() < 40, "prequel", "sequel")) %>%
-        add_crossed_dummies(vars = vars(gender, movie), drop_vars = TRUE) %>%
-        select(matches("gender|movie")) %>%
-        sample_n(10)
-
-
-
-# load add_dummies()
-current_wd <- getwd()
-setwd("C:/Users/Stephen/Desktop/R/assorted_helper_scripts")
-source("add_dummies.R")
-setwd(current_wd)
-
-starwars %>% filter(species %in% c("Human", "Mirialan")) %>% count(gender, hair_color, species) %>% arrange(desc(n))
-starwars %>% filter(species %in% c("Human", "Mirialan")) %>%
-        select(-c(films, vehicles, starships)) %>%
-        add_crossed_dummies(vars = vars(gender, hair_color)) %>%
-        add_dummies(vars = species) %>%
-        select(matches("hair_color.black|hair_color.brown$|species.")) %>%
-        data.frame() %>% UpSetR::upset(nsets = 10)
+# starwars_data %>% add_crossed_dummies(vars = "gender") %>% glimpse()
+# starwars_data %>% add_crossed_dummies(vars = "gender", prefix = "dummy_") %>% select(matches("gender."))
+# starwars_data %>% add_crossed_dummies(vars = gender, suffix = "_dummy") %>% select(starts_with("gender"))
+# starwars_data %>% add_crossed_dummies(vars = vars(gender), drop_vars = TRUE) %>% select(starts_with("gender"))
+# starwars_data %>% filter(gender %in% c("masculine", "feminine")) %>%
+#         mutate(movie = ifelse(row_number() < 40, "prequel", "sequel")) %>%
+#         add_crossed_dummies(vars = vars(gender, movie)) %>%
+#         select(gender, movie, matches("gender|movie")) %>%
+#         sample_n(10)
+# starwars_data %>% filter(gender %in% c("masculine", "feminine")) %>%
+#         mutate(movie = ifelse(row_number() < 40, "prequel", "sequel")) %>%
+#         add_crossed_dummies(vars = vars(gender, movie), drop_vars = TRUE) %>%
+#         select(matches("gender|movie")) %>%
+#         sample_n(10)
+# 
+# 
+# 
+# # load add_dummies()
+# current_wd <- getwd()
+# setwd("C:/Users/Stephen/Desktop/R/assorted_helper_scripts")
+# source("add_dummies.R")
+# setwd(current_wd)
+# 
+# starwars %>% filter(species %in% c("Human", "Mirialan")) %>% count(gender, hair_color, species) %>% arrange(desc(n))
+# starwars %>% filter(species %in% c("Human", "Mirialan")) %>%
+#         select(-c(films, vehicles, starships)) %>%
+#         add_crossed_dummies(vars = vars(gender, hair_color)) %>%
+#         add_dummies(vars = species) %>%
+#         select(matches("hair_color.black|hair_color.brown$|species.")) %>%
+#         data.frame() %>% UpSetR::upset(nsets = 10)
 
