@@ -54,7 +54,7 @@ add_crossed_dummies <- function(data, vars, drop_vars = FALSE, prefix = NULL, su
                 
                 # get var_value_combos
                 # note that when an apostrophe is in the value, it is substitute internally to "*$*", 
-                # this avoids erros when compiling the filter expressions, since apostrophes
+                # this avoids errors when compiling the filter expressions, since apostrophes
                 # get confused with single quotes
                 # note since the filter expression is built with the substitute, 
                 # and is later filtered on a substituted version of the data in get_crossed_dummy_vectors,
@@ -106,10 +106,10 @@ add_crossed_dummies <- function(data, vars, drop_vars = FALSE, prefix = NULL, su
                 return(data %>% 
                                mutate(!!current_var_filter_expr_sym := str_c(!!current_var_name_sym, " == '", 
                                                                              !!current_var_value_sym, "'")) %>%
-                               select(crossed_dummy_var_name, !!current_var_filter_expr_sym)) %>%
+                               select(crossed_dummy_var_name, !!current_var_filter_expr_sym) %>%
                         mutate(!!current_var_filter_expr_sym := case_when(is.na(!!current_var_filter_expr_sym) ~
                                                                                   str_c("is.na(", current_var_name_distinct, ")"),
-                                                                          TRUE ~ !!current_var_filter_expr_sym))
+                                                                          TRUE ~ !!current_var_filter_expr_sym)))
         }
         
         
@@ -117,12 +117,12 @@ add_crossed_dummies <- function(data, vars, drop_vars = FALSE, prefix = NULL, su
         
         
         # call get_individual_filter_expr to update crossed_dummy_combos with crossed_dummy_filter_expr
-        crossed_dummy_combos <- map(.x = 1:length(var_names), 
+        crossed_dummy_combos <- suppressMessages(expr = map(.x = 1:length(var_names), 
                                     .f = ~ get_individual_filter_expr(data = crossed_dummy_combos, 
                                                                       current_var_number = .x)) %>%
-                reduce(.f = bind_cols) %>% select(-matches("crossed_dummy_var_name[0-9]+")) %>%
+                reduce(.f = bind_cols) %>% select(-matches("crossed_dummy_var_name")) %>%
                 unite(col = crossed_dummy_filter_expr, contains("filter_expr"), sep = " & ", remove = FALSE) %>%
-                select(-crossed_dummy_var_name) %>% bind_cols(crossed_dummy_combos, .) 
+                bind_cols(crossed_dummy_combos, .))
         
         
         ###################
@@ -138,8 +138,6 @@ add_crossed_dummies <- function(data, vars, drop_vars = FALSE, prefix = NULL, su
                 # and then the dummy vector is binded to the original data, the substitute doesn't affect final output values
                 return(data %>% 
                                mutate_all(.funs = ~ str_replace_all(string = ., pattern = "'", replacement = "*$*")) %>%
-                               # mutate(!!sym(current_var_name) := str_replace_all(string = !!sym(current_var_name), 
-                               #                                                   pattern = "'", replacement = "*$*")) %>%
                                mutate(!!sym(current_crossed_dummy_var_name) := case_when(
                                        !!parse_expr(current_crossed_dummy_filter_expr) ~ 1, TRUE ~ 0)) %>%
                                select(!!sym(current_crossed_dummy_var_name)))
@@ -182,25 +180,34 @@ add_crossed_dummies <- function(data, vars, drop_vars = FALSE, prefix = NULL, su
 # # test add_dummies()
 # # note that list columns are removed since add_crossed_dummies throws warning with them
 # starwars_data <- starwars %>% select(-c(films, vehicles, starships))
-# starwars_data %>% add_crossed_dummies(vars = "gender") %>% glimpse()
-# starwars_data %>% add_crossed_dummies(vars = "gender", prefix = "dummy_") %>% select(matches("gender."))
-# starwars_data %>% add_crossed_dummies(vars = gender, suffix = "_dummy") %>% select(starts_with("gender"))
-# starwars_data %>% add_crossed_dummies(vars = vars(gender), drop_vars = TRUE) %>% select(starts_with("gender"))
-# starwars_data %>% filter(gender %in% c("male", "female")) %>%
-#         mutate(movie = ifelse(row_number() < 40, "prequel", "sequel")) %>%
-#         add_crossed_dummies(vars = vars(gender, movie)) %>%
-#         select(gender, movie, matches("gender|movie")) %>%
-#         sample_n(10)
-# starwars_data %>% filter(gender %in% c("male", "female")) %>%
-#         mutate(movie = ifelse(row_number() < 40, "prequel", "sequel")) %>%
-#         add_crossed_dummies(vars = vars(gender, movie), drop_vars = TRUE) %>%
-#         select(matches("gender|movie")) %>%
-#         sample_n(10)
+starwars_data %>% add_crossed_dummies(vars = "gender") %>% glimpse()
+starwars_data %>% add_crossed_dummies(vars = "gender", prefix = "dummy_") %>% select(matches("gender."))
+starwars_data %>% add_crossed_dummies(vars = gender, suffix = "_dummy") %>% select(starts_with("gender"))
+starwars_data %>% add_crossed_dummies(vars = vars(gender), drop_vars = TRUE) %>% select(starts_with("gender"))
+starwars_data %>% filter(gender %in% c("masculine", "feminine")) %>%
+        mutate(movie = ifelse(row_number() < 40, "prequel", "sequel")) %>%
+        add_crossed_dummies(vars = vars(gender, movie)) %>%
+        select(gender, movie, matches("gender|movie")) %>%
+        sample_n(10)
+starwars_data %>% filter(gender %in% c("masculine", "feminine")) %>%
+        mutate(movie = ifelse(row_number() < 40, "prequel", "sequel")) %>%
+        add_crossed_dummies(vars = vars(gender, movie), drop_vars = TRUE) %>%
+        select(matches("gender|movie")) %>%
+        sample_n(10)
 
-# starwars %>% filter(species %in% c("Human", "Mirialan")) %>% count(gender, hair_color, species) %>% arrange(desc(n))
-# starwars %>% filter(species %in% c("Human", "Mirialan")) %>%
-#         add_crossed_dummies(vars = vars(gender, hair_color)) %>%
-#         add_dummies(vars = species) %>%
-#         select(matches("hair_color.black|hair_color.brown$|species.")) %>%
-#         data.frame() %>% UpSetR::upset(nsets = 10)
+
+
+# load add_dummies()
+current_wd <- getwd()
+setwd("C:/Users/Stephen/Desktop/R/assorted_helper_scripts")
+source("add_dummies.R")
+setwd(current_wd)
+
+starwars %>% filter(species %in% c("Human", "Mirialan")) %>% count(gender, hair_color, species) %>% arrange(desc(n))
+starwars %>% filter(species %in% c("Human", "Mirialan")) %>%
+        select(-c(films, vehicles, starships)) %>%
+        add_crossed_dummies(vars = vars(gender, hair_color)) %>%
+        add_dummies(vars = species) %>%
+        select(matches("hair_color.black|hair_color.brown$|species.")) %>%
+        data.frame() %>% UpSetR::upset(nsets = 10)
 
