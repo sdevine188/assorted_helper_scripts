@@ -53,7 +53,7 @@ library(Polychrome)
 # https://gist.github.com/mbannert/e9fcfa86de3b06068c83
 
 convert_color_from_rgb_to_hex <- function(r, g, b) {
-        rgb(r, g, b, maxColorValue = 255)
+  rgb(r, g, b, maxColorValue = 255)
 }
 
 
@@ -70,8 +70,8 @@ polychrome_palette %>% swatch()
 
 starwars %>% add_count(homeworld) %>% ggplot(data = ., mapping = aes(x = fct_reorder(.f = homeworld, .x = n, .desc = FALSE), 
                                                                      y = n, fill = homeworld)) +
-        geom_col() +
-        scale_fill_manual(values = unname(polychrome_palette))
+  geom_col() +
+  scale_fill_manual(values = unname(polychrome_palette))
 
 
 #////////////////////////////////////////////////////////////////////////////////////
@@ -219,8 +219,8 @@ data <- tibble(group_number = as.character(c(rep(seq(from = 1, to = 5, by = 1), 
                measure_2 = sample(seq(from = .1, to = 1, by = .1), size = 70, replace = TRUE),
                measure_3 = sample(seq(from = .1, to = 1, by = .1), size = 70, replace = TRUE),
                measure_4 = sample(seq(from = .1, to = 1, by = .1), size = 70, replace = TRUE)) %>%
-        arrange(group_number) %>%
-        mutate(color_group = as.character(c(rep(seq(from = 1, to = 14, by = 1), times = 5))))
+  arrange(group_number) %>%
+  mutate(color_group = as.character(c(rep(seq(from = 1, to = 14, by = 1), times = 5))))
 
 # inspect
 data
@@ -264,56 +264,56 @@ chart_data
 
 # create stacked_bar_chart ####
 stacked_bar_chart <- chart_data %>% 
-        # filter(group_number %in% c("1", "4")) %>%
-        ggplot(data = ., mapping = aes(x = group_number, y = value_1, fill = color_bin)) +
-        geom_bar(position = position_stack(), stat = "identity", width = .9) +
-        scale_fill_manual(values = chart_data_color_list) +
-        theme_bw() +
-        theme(
-                # plot.background = element_rect(fill = "blue"),
-                plot.margin = unit(c(0, 10, 0, 0), "mm"),
-                plot.caption = element_text(hjust = 0, size = 11, face = "plain", family = "Calibri", 
-                                            color = "#000000", margin = margin(t = 4, r = 0, b = 0, l = 0)),
-                # text = element_text(family = "Calibri", size = 46, face = "plain", color = "#000000"),
-                panel.grid.minor = element_blank(),
-                # panel.grid.major.x = element_line(color = "#DDDDDD"),
-                panel.grid.major.x = element_blank(),
-                panel.grid.major.y = element_blank(),
-                # panel.grid.major.y = element_line(color = "#000000"),
-                panel.border = element_blank(),
-                # panel.grid = element_blank(),
-                # line = element_blank(),
-                # rect = element_blank(),
-                # axis.ticks.y = element_blank(),
-                # axis.ticks.x = element_blank(),
-                axis.ticks.length.y.left = unit(.2, "cm"),
-                axis.ticks.length.x.bottom = unit(.2, "cm"),
-                axis.text.x = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
-                                           margin = margin(t = 5, r = 0, b = 0, l = 0)),
-                axis.text.y = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", hjust = .5,
-                                           margin = margin(t = 0, r = 5, b = 0, l = 0)),
-                axis.line.x.bottom = element_line(color = "#595959"),
-                axis.line.y.left = element_line(color = "#595959"),
-                axis.title.x = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
-                                            margin = margin(t = 8, r = 0, b = 5, l = 0)),
-                axis.title.y = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
-                                            margin = margin(t = 0, r = 10, b = 0, l = 0)),
-                plot.title = element_text(size = 16, face = "bold", hjust = .5, family = "Calibri", color = "#000000", 
-                                          margin = margin(t = 0, r = 0, b = 10, l = 0, unit = "pt")),
-                legend.position = "bottom",
-                # legend.key.size = unit(2, "mm"), 
-                legend.title = element_text(size = 12, family = "Calibri", face = "plain"),
-                legend.text = element_text(size = 12, family = "Calibri", margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"), 
-                                           hjust = .5)
-                # legend.spacing.y = unit(5.5, "cm"),
-                # legend.key = element_rect(size = 5),
-                # legend.key.size = unit(2, 'lines')
-        )
-        
+  # filter(group_number %in% c("1", "4")) %>%
+  ggplot(data = ., mapping = aes(x = group_number, y = value_1, fill = color_bin)) +
+  geom_bar(position = position_stack(), stat = "identity", width = .9) +
+  scale_fill_manual(values = chart_data_color_list) +
+  theme_bw() +
+  theme(
+    # plot.background = element_rect(fill = "blue"),
+    plot.margin = unit(c(0, 10, 0, 0), "mm"),
+    plot.caption = element_text(hjust = 0, size = 11, face = "plain", family = "Calibri", 
+                                color = "#000000", margin = margin(t = 4, r = 0, b = 0, l = 0)),
+    # text = element_text(family = "Calibri", size = 46, face = "plain", color = "#000000"),
+    panel.grid.minor = element_blank(),
+    # panel.grid.major.x = element_line(color = "#DDDDDD"),
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    # panel.grid.major.y = element_line(color = "#000000"),
+    panel.border = element_blank(),
+    # panel.grid = element_blank(),
+    # line = element_blank(),
+    # rect = element_blank(),
+    # axis.ticks.y = element_blank(),
+    # axis.ticks.x = element_blank(),
+    axis.ticks.length.y.left = unit(.2, "cm"),
+    axis.ticks.length.x.bottom = unit(.2, "cm"),
+    axis.text.x = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
+                               margin = margin(t = 5, r = 0, b = 0, l = 0)),
+    axis.text.y = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", hjust = .5,
+                               margin = margin(t = 0, r = 5, b = 0, l = 0)),
+    axis.line.x.bottom = element_line(color = "#595959"),
+    axis.line.y.left = element_line(color = "#595959"),
+    axis.title.x = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
+                                margin = margin(t = 8, r = 0, b = 5, l = 0)),
+    axis.title.y = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
+                                margin = margin(t = 0, r = 10, b = 0, l = 0)),
+    plot.title = element_text(size = 16, face = "bold", hjust = .5, family = "Calibri", color = "#000000", 
+                              margin = margin(t = 0, r = 0, b = 10, l = 0, unit = "pt")),
+    legend.position = "bottom",
+    # legend.key.size = unit(2, "mm"), 
+    legend.title = element_text(size = 12, family = "Calibri", face = "plain"),
+    legend.text = element_text(size = 12, family = "Calibri", margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"), 
+                               hjust = .5)
+    # legend.spacing.y = unit(5.5, "cm"),
+    # legend.key = element_rect(size = 5),
+    # legend.key.size = unit(2, 'lines')
+  )
+
 # inspect
 stacked_bar_chart
-        
-        
+
+
 #/////////////////////////////////////////////////////////////////////////////////////////////
 #/////////////////////////////////////////////////////////////////////////////////////////////
 #/////////////////////////////////////////////////////////////////////////////////////////////
@@ -321,61 +321,61 @@ stacked_bar_chart
 
 # create scatterplot ####
 scatterplot <- chart_data %>% 
-        ggplot(data = ., aes(x = value_1, y = value_2, label = name,
-                             color = factor(color_bin, 
-                        levels = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15")))) +
-        geom_point(size = 6) + 
-        geom_text_repel(fontface = "bold", point.padding = .2, size = 4) +
-        scale_color_manual(values = chart_data_color_list) +
-        # scale_x_discrete(expand = c(0, 0)) +
-        scale_y_continuous(breaks = seq(from = 0, to = 1, by = .1), limits = c(-.01, 1.01)) +
-        scale_x_continuous(breaks = seq(from = 0, to = 1, by = .1), limits = c(-.01, 1.01)) +
-        labs(x = "test", y = "test", 
-             title = NULL,
-             caption = NULL, color = "") +
-        # coord_fixed(ratio = 1/.05, clip = "off") +
-        # coord_flip() + 
-        theme_bw() + 
-        theme(
-                # plot.background = element_rect(fill = "blue"),
-                plot.margin = unit(c(0, 10, 0, 0), "mm"),
-                plot.caption = element_text(hjust = 0, size = 11, face = "plain", family = "Calibri", 
-                                            color = "#000000", margin = margin(t = 4, r = 0, b = 0, l = 0)),
-                # text = element_text(family = "Calibri", size = 46, face = "plain", color = "#000000"),
-                panel.grid.minor = element_blank(),
-                # panel.grid.major.x = element_line(color = "#DDDDDD"),
-                panel.grid.major.x = element_blank(),
-                panel.grid.major.y = element_blank(),
-                # panel.grid.major.y = element_line(color = "#000000"),
-                panel.border = element_blank(),
-                # panel.grid = element_blank(),
-                # line = element_blank(),
-                # rect = element_blank(),
-                # axis.ticks.y = element_blank(),
-                # axis.ticks.x = element_blank(),
-                axis.ticks.length.y.left = unit(.2, "cm"),
-                axis.ticks.length.x.bottom = unit(.2, "cm"),
-                axis.text.x = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
-                                           margin = margin(t = 5, r = 0, b = 0, l = 0)),
-                axis.text.y = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", hjust = .5,
-                                           margin = margin(t = 0, r = 5, b = 0, l = 0)),
-                axis.line.x.bottom = element_line(color = "#595959"),
-                axis.line.y.left = element_line(color = "#595959"),
-                axis.title.x = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
-                                            margin = margin(t = 8, r = 0, b = 5, l = 0)),
-                axis.title.y = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
-                                            margin = margin(t = 0, r = 10, b = 0, l = 0)),
-                plot.title = element_text(size = 16, face = "bold", hjust = .5, family = "Calibri", color = "#000000", 
-                                          margin = margin(t = 0, r = 0, b = 10, l = 0, unit = "pt")),
-                legend.position = "bottom",
-                # legend.key.size = unit(2, "mm"), 
-                legend.title = element_text(size = 12, family = "Calibri", face = "plain"),
-                legend.text = element_text(size = 12, family = "Calibri", margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"), 
-                                           hjust = .5)
-                # legend.spacing.y = unit(5.5, "cm"),
-                # legend.key = element_rect(size = 5),
-                # legend.key.size = unit(2, 'lines')
-        )
+  ggplot(data = ., aes(x = value_1, y = value_2, label = name,
+                       color = factor(color_bin, 
+                                      levels = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15")))) +
+  geom_point(size = 6) + 
+  geom_text_repel(fontface = "bold", point.padding = .2, size = 4) +
+  scale_color_manual(values = chart_data_color_list) +
+  # scale_x_discrete(expand = c(0, 0)) +
+  scale_y_continuous(breaks = seq(from = 0, to = 1, by = .1), limits = c(-.01, 1.01)) +
+  scale_x_continuous(breaks = seq(from = 0, to = 1, by = .1), limits = c(-.01, 1.01)) +
+  labs(x = "test", y = "test", 
+       title = NULL,
+       caption = NULL, color = "") +
+  # coord_fixed(ratio = 1/.05, clip = "off") +
+  # coord_flip() + 
+  theme_bw() + 
+  theme(
+    # plot.background = element_rect(fill = "blue"),
+    plot.margin = unit(c(0, 10, 0, 0), "mm"),
+    plot.caption = element_text(hjust = 0, size = 11, face = "plain", family = "Calibri", 
+                                color = "#000000", margin = margin(t = 4, r = 0, b = 0, l = 0)),
+    # text = element_text(family = "Calibri", size = 46, face = "plain", color = "#000000"),
+    panel.grid.minor = element_blank(),
+    # panel.grid.major.x = element_line(color = "#DDDDDD"),
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    # panel.grid.major.y = element_line(color = "#000000"),
+    panel.border = element_blank(),
+    # panel.grid = element_blank(),
+    # line = element_blank(),
+    # rect = element_blank(),
+    # axis.ticks.y = element_blank(),
+    # axis.ticks.x = element_blank(),
+    axis.ticks.length.y.left = unit(.2, "cm"),
+    axis.ticks.length.x.bottom = unit(.2, "cm"),
+    axis.text.x = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
+                               margin = margin(t = 5, r = 0, b = 0, l = 0)),
+    axis.text.y = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", hjust = .5,
+                               margin = margin(t = 0, r = 5, b = 0, l = 0)),
+    axis.line.x.bottom = element_line(color = "#595959"),
+    axis.line.y.left = element_line(color = "#595959"),
+    axis.title.x = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
+                                margin = margin(t = 8, r = 0, b = 5, l = 0)),
+    axis.title.y = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
+                                margin = margin(t = 0, r = 10, b = 0, l = 0)),
+    plot.title = element_text(size = 16, face = "bold", hjust = .5, family = "Calibri", color = "#000000", 
+                              margin = margin(t = 0, r = 0, b = 10, l = 0, unit = "pt")),
+    legend.position = "bottom",
+    # legend.key.size = unit(2, "mm"), 
+    legend.title = element_text(size = 12, family = "Calibri", face = "plain"),
+    legend.text = element_text(size = 12, family = "Calibri", margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"), 
+                               hjust = .5)
+    # legend.spacing.y = unit(5.5, "cm"),
+    # legend.key = element_rect(size = 5),
+    # legend.key.size = unit(2, 'lines')
+  )
 
 
 # inspect
@@ -389,62 +389,62 @@ scatterplot
 
 # create jitter_plot ####
 jitter_plot <- chart_data %>% filter(group_number %in% c(1, 2, 3, 4)) %>% 
-        ggplot(data = ., aes(x = group_number, 
-                                        y = value_1, color = factor(color_bin, 
-                        levels = c("1", "2", "3", "4", "5", "6","7", "8", "9", "10", "11")))) +  
-        geom_jitter(width = 0.15, height = .25, size = 6) +         
-        scale_size(guide = "none") +
-        scale_color_manual(values = chart_data_color_list) +
-        scale_x_discrete(expand = c(.1, 0)) +
-        scale_y_discrete(expand = c(.1, 0)) +
-        # scale_x_continuous(breaks = seq(from = 0, to = .8, by = .1), limits = c(-.05, .85), expand = c(-.05, 0)) +
-        # scale_y_continuous(breaks = seq(from = 0, to = .6, by = .1), limits = c(-.05, .65), expand = c(-.05, 0)) +
-        labs(x = "test", y = "test",
-             title = NULL,
-             caption = NULL, color = "") +
-        # coord_fixed(ratio = 1/.05, clip = "off") +
-        # coord_flip() + 
-        theme_bw() +
-        theme(
-                # plot.background = element_rect(fill = "blue"),
-                plot.margin = unit(c(0, 10, 0, 0), "mm"),
-                plot.caption = element_text(hjust = 0, size = 11, face = "plain", family = "Calibri", 
-                                            color = "#000000", margin = margin(t = 4, r = 0, b = 0, l = 0)),
-                # text = element_text(family = "Calibri", size = 46, face = "plain", color = "#000000"),
-                panel.grid.minor = element_blank(),
-                panel.grid.major.x = element_line(color = "#DDDDDD"),
-                panel.grid.major.y = element_blank(),
-                # panel.grid.major.y = element_line(color = "#000000"),
-                panel.border = element_blank(),
-                # panel.grid = element_blank(),
-                # line = element_blank(),
-                # rect = element_blank(),
-                # axis.ticks.y = element_blank(),
-                # axis.ticks.x = element_blank(),
-                axis.ticks.length.y.left = unit(.2, "cm"),
-                axis.ticks.length.x.bottom = unit(.2, "cm"),
-                axis.text.x = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
-                                           margin = margin(t = 5, r = 0, b = 0, l = 0)),
-                axis.text.y = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", hjust = .5,
-                                           margin = margin(t = 0, r = 5, b = 0, l = 0)),
-                axis.line.x.bottom = element_line(color = "#595959"),
-                axis.line.y.left = element_line(color = "#595959"),
-                axis.title.x = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
-                                            margin = margin(t = 8, r = 0, b = 5, l = 0)),
-                axis.title.y = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
-                                            margin = margin(t = 0, r = 10, b = 0, l = 0)),
-                plot.title = element_text(size = 16, face = "bold", hjust = .5, family = "Calibri", color = "#000000", 
-                                          margin = margin(t = 0, r = 0, b = 10, l = 0, unit = "pt")),
-                legend.position = "bottom",
-                # legend.key.size = unit(2, "mm"), 
-                legend.title = element_text(size = 12, family = "Calibri", face = "plain"),
-                legend.text = element_text(size = 12, family = "Calibri", margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"), 
-                                           hjust = .5)
-                # legend.spacing.y = unit(5.5, "cm"),
-                # legend.key = element_rect(size = 5),
-                # legend.key.size = unit(2, 'lines')
-        ) + 
-        guides(colour = guide_legend(override.aes = list(size = 4)))
+  ggplot(data = ., aes(x = group_number, 
+                       y = value_1, color = factor(color_bin, 
+                                                   levels = c("1", "2", "3", "4", "5", "6","7", "8", "9", "10", "11")))) +  
+  geom_jitter(width = 0.15, height = .25, size = 6) +         
+  scale_size(guide = "none") +
+  scale_color_manual(values = chart_data_color_list) +
+  scale_x_discrete(expand = c(.1, 0)) +
+  scale_y_discrete(expand = c(.1, 0)) +
+  # scale_x_continuous(breaks = seq(from = 0, to = .8, by = .1), limits = c(-.05, .85), expand = c(-.05, 0)) +
+  # scale_y_continuous(breaks = seq(from = 0, to = .6, by = .1), limits = c(-.05, .65), expand = c(-.05, 0)) +
+  labs(x = "test", y = "test",
+       title = NULL,
+       caption = NULL, color = "") +
+  # coord_fixed(ratio = 1/.05, clip = "off") +
+  # coord_flip() + 
+  theme_bw() +
+  theme(
+    # plot.background = element_rect(fill = "blue"),
+    plot.margin = unit(c(0, 10, 0, 0), "mm"),
+    plot.caption = element_text(hjust = 0, size = 11, face = "plain", family = "Calibri", 
+                                color = "#000000", margin = margin(t = 4, r = 0, b = 0, l = 0)),
+    # text = element_text(family = "Calibri", size = 46, face = "plain", color = "#000000"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_line(color = "#DDDDDD"),
+    panel.grid.major.y = element_blank(),
+    # panel.grid.major.y = element_line(color = "#000000"),
+    panel.border = element_blank(),
+    # panel.grid = element_blank(),
+    # line = element_blank(),
+    # rect = element_blank(),
+    # axis.ticks.y = element_blank(),
+    # axis.ticks.x = element_blank(),
+    axis.ticks.length.y.left = unit(.2, "cm"),
+    axis.ticks.length.x.bottom = unit(.2, "cm"),
+    axis.text.x = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
+                               margin = margin(t = 5, r = 0, b = 0, l = 0)),
+    axis.text.y = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", hjust = .5,
+                               margin = margin(t = 0, r = 5, b = 0, l = 0)),
+    axis.line.x.bottom = element_line(color = "#595959"),
+    axis.line.y.left = element_line(color = "#595959"),
+    axis.title.x = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
+                                margin = margin(t = 8, r = 0, b = 5, l = 0)),
+    axis.title.y = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
+                                margin = margin(t = 0, r = 10, b = 0, l = 0)),
+    plot.title = element_text(size = 16, face = "bold", hjust = .5, family = "Calibri", color = "#000000", 
+                              margin = margin(t = 0, r = 0, b = 10, l = 0, unit = "pt")),
+    legend.position = "bottom",
+    # legend.key.size = unit(2, "mm"), 
+    legend.title = element_text(size = 12, family = "Calibri", face = "plain"),
+    legend.text = element_text(size = 12, family = "Calibri", margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"), 
+                               hjust = .5)
+    # legend.spacing.y = unit(5.5, "cm"),
+    # legend.key = element_rect(size = 5),
+    # legend.key.size = unit(2, 'lines')
+  ) + 
+  guides(colour = guide_legend(override.aes = list(size = 4)))
 
 # inspect
 jitter_plot
@@ -457,58 +457,58 @@ jitter_plot
 
 # create bar chart ####
 bar_chart <- chart_data %>% ggplot(data = ., aes(x = fct_reorder(.f = factor(name), .x = value_1), 
-                                                        y = value_1, 
-                                                        fill = factor(color_bin, 
-                        levels = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14")))) +        
-        geom_col() + 
-        scale_fill_manual(values = chart_data_color_list) +
-        scale_x_discrete(expand = c(0, 0)) +
-        scale_y_continuous(breaks = seq(from = 0, to = 1, by = .1), limits = c(0, 1.1), expand = c(0, 0)) +
-        labs(x = NULL, y = "test", 
-             title = NULL,
-             caption = NULL, fill = "") +
-        # coord_fixed(ratio = 1/.05, clip = "off") +
-        theme_bw() +
-        theme(
-                # plot.background = element_rect(fill = "blue"),
-                plot.margin = unit(c(0, 0, 0, 0), "mm"),
-                plot.caption = element_text(hjust = 0, size = 11, face = "plain", family = "Calibri", 
-                                            color = "#000000", margin = margin(t = 4, r = 0, b = 0, l = 0)),
-                # text = element_text(family = "Calibri", size = 46, face = "plain", color = "#000000"),
-                panel.grid.minor = element_blank(),
-                panel.grid.major.x = element_line(color = "#DDDDDD"),
-                panel.grid.major.y = element_blank(),
-                # panel.grid.major.y = element_line(color = "#000000"),
-                panel.border = element_blank(),
-                # panel.grid = element_blank(),
-                # line = element_blank(),
-                # rect = element_blank(),
-                # axis.ticks.y = element_blank(),
-                # axis.ticks.x = element_blank(),
-                axis.ticks.length.y.left = unit(.2, "cm"),
-                axis.ticks.length.x.bottom = unit(.2, "cm"),
-                axis.text.x = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
-                                           margin = margin(t = 5, r = 0, b = 0, l = 0)),
-                axis.text.y = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
-                                           margin = margin(t = 0, r = 5, b = 0, l = 0)),
-                axis.line.x.bottom = element_line(color = "#595959"),
-                axis.line.y.left = element_line(color = "#595959"),
-                axis.title.x = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
-                                            margin = margin(t = 8, r = 0, b = 5, l = 0)),
-                axis.title.y = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
-                                            margin = margin(t = 0, r = 5, b = 0, l = 0)),
-                plot.title = element_text(size = 16, face = "bold", hjust = .5, family = "Calibri", color = "#000000", 
-                                          margin = margin(t = 0, r = 0, b = 10, l = 0, unit = "pt")),
-                legend.position = "bottom",
-                # legend.key.size = unit(2, "mm"), 
-                legend.title = element_text(size = 12, family = "Calibri", face = "plain"),
-                legend.text = element_text(size = 12, family = "Calibri", margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"), 
-                                           hjust = .5)
-                # legend.spacing.y = unit(5.5, "cm"),
-                # legend.key = element_rect(size = 5),
-                # legend.key.size = unit(2, 'lines')
-        ) + 
-        coord_flip()
+                                                 y = value_1, 
+                                                 fill = factor(color_bin, 
+                                                               levels = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14")))) +        
+  geom_col() + 
+  scale_fill_manual(values = chart_data_color_list) +
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_y_continuous(breaks = seq(from = 0, to = 1, by = .1), limits = c(0, 1.1), expand = c(0, 0)) +
+  labs(x = NULL, y = "test", 
+       title = NULL,
+       caption = NULL, fill = "") +
+  # coord_fixed(ratio = 1/.05, clip = "off") +
+  theme_bw() +
+  theme(
+    # plot.background = element_rect(fill = "blue"),
+    plot.margin = unit(c(0, 0, 0, 0), "mm"),
+    plot.caption = element_text(hjust = 0, size = 11, face = "plain", family = "Calibri", 
+                                color = "#000000", margin = margin(t = 4, r = 0, b = 0, l = 0)),
+    # text = element_text(family = "Calibri", size = 46, face = "plain", color = "#000000"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_line(color = "#DDDDDD"),
+    panel.grid.major.y = element_blank(),
+    # panel.grid.major.y = element_line(color = "#000000"),
+    panel.border = element_blank(),
+    # panel.grid = element_blank(),
+    # line = element_blank(),
+    # rect = element_blank(),
+    # axis.ticks.y = element_blank(),
+    # axis.ticks.x = element_blank(),
+    axis.ticks.length.y.left = unit(.2, "cm"),
+    axis.ticks.length.x.bottom = unit(.2, "cm"),
+    axis.text.x = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
+                               margin = margin(t = 5, r = 0, b = 0, l = 0)),
+    axis.text.y = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
+                               margin = margin(t = 0, r = 5, b = 0, l = 0)),
+    axis.line.x.bottom = element_line(color = "#595959"),
+    axis.line.y.left = element_line(color = "#595959"),
+    axis.title.x = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
+                                margin = margin(t = 8, r = 0, b = 5, l = 0)),
+    axis.title.y = element_text(family = "Calibri", face = "plain", size = 12, color = "#000000", 
+                                margin = margin(t = 0, r = 5, b = 0, l = 0)),
+    plot.title = element_text(size = 16, face = "bold", hjust = .5, family = "Calibri", color = "#000000", 
+                              margin = margin(t = 0, r = 0, b = 10, l = 0, unit = "pt")),
+    legend.position = "bottom",
+    # legend.key.size = unit(2, "mm"), 
+    legend.title = element_text(size = 12, family = "Calibri", face = "plain"),
+    legend.text = element_text(size = 12, family = "Calibri", margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"), 
+                               hjust = .5)
+    # legend.spacing.y = unit(5.5, "cm"),
+    # legend.key = element_rect(size = 5),
+    # legend.key.size = unit(2, 'lines')
+  ) + 
+  coord_flip()
 
 
 # inspect
@@ -522,19 +522,19 @@ bar_chart
 
 # get time series chart_data ####
 chart_data <- tibble(group_number = c(rep(1, times = 10),
-                               rep(2, times = 10),
-                               rep(3, times = 10),
-                               rep(4, times = 10),
-                               rep(5, times = 10),
-                               rep(6, times = 10),
-                               rep(7, times = 10),
-                               rep(8, times = 10),
-                               rep(9, times = 10),
-                               rep(10, times = 10),
-                               rep(11, times = 10),
-                               rep(12, times = 10),
-                               rep(13, times = 10),
-                               rep(14, times = 10)),
+                                      rep(2, times = 10),
+                                      rep(3, times = 10),
+                                      rep(4, times = 10),
+                                      rep(5, times = 10),
+                                      rep(6, times = 10),
+                                      rep(7, times = 10),
+                                      rep(8, times = 10),
+                                      rep(9, times = 10),
+                                      rep(10, times = 10),
+                                      rep(11, times = 10),
+                                      rep(12, times = 10),
+                                      rep(13, times = 10),
+                                      rep(14, times = 10)),
                      year = rep(seq(from = 2011, to = 2020, by = 1), times = 14),
                      value = sample(seq(from = 1, to = 5), size = 140, replace = TRUE))
 chart_data
@@ -546,20 +546,20 @@ chart_data %>% count(group_number)
 
 # add color_bin and color
 chart_data <- chart_data %>% mutate(color_bin = group_number,
-                              color = case_when(color_bin == "1" ~ color_palette %>% slice(1) %>% pull(hex),
-                                                color_bin == "2" ~ color_palette %>% slice(2) %>% pull(hex),
-                                                color_bin == "3" ~ color_palette %>% slice(3) %>% pull(hex),
-                                                color_bin == "4" ~ color_palette %>% slice(4) %>% pull(hex),
-                                                color_bin == "5" ~ color_palette %>% slice(5) %>% pull(hex),
-                                                color_bin == "6" ~ color_palette %>% slice(6) %>% pull(hex),
-                                                color_bin == "7" ~ color_palette %>% slice(7) %>% pull(hex),
-                                                color_bin == "8" ~ color_palette %>% slice(8) %>% pull(hex),
-                                                color_bin == "9" ~ color_palette %>% slice(9) %>% pull(hex),
-                                                color_bin == "10" ~ color_palette %>% slice(10) %>% pull(hex),
-                                                color_bin == "11" ~ color_palette %>% slice(11) %>% pull(hex),
-                                                color_bin == "12" ~ color_palette %>% slice(12) %>% pull(hex),
-                                                color_bin == "13" ~ color_palette %>% slice(13) %>% pull(hex),
-                                                color_bin == "14" ~ color_palette %>% slice(14) %>% pull(hex)))
+                                    color = case_when(color_bin == "1" ~ color_palette %>% slice(1) %>% pull(hex),
+                                                      color_bin == "2" ~ color_palette %>% slice(2) %>% pull(hex),
+                                                      color_bin == "3" ~ color_palette %>% slice(3) %>% pull(hex),
+                                                      color_bin == "4" ~ color_palette %>% slice(4) %>% pull(hex),
+                                                      color_bin == "5" ~ color_palette %>% slice(5) %>% pull(hex),
+                                                      color_bin == "6" ~ color_palette %>% slice(6) %>% pull(hex),
+                                                      color_bin == "7" ~ color_palette %>% slice(7) %>% pull(hex),
+                                                      color_bin == "8" ~ color_palette %>% slice(8) %>% pull(hex),
+                                                      color_bin == "9" ~ color_palette %>% slice(9) %>% pull(hex),
+                                                      color_bin == "10" ~ color_palette %>% slice(10) %>% pull(hex),
+                                                      color_bin == "11" ~ color_palette %>% slice(11) %>% pull(hex),
+                                                      color_bin == "12" ~ color_palette %>% slice(12) %>% pull(hex),
+                                                      color_bin == "13" ~ color_palette %>% slice(13) %>% pull(hex),
+                                                      color_bin == "14" ~ color_palette %>% slice(14) %>% pull(hex)))
 
 # create color_list for to pass to scale_color_manual
 chart_data_color_list <- chart_data %>% count(color_bin, color) %>% pull(color)
@@ -572,60 +572,60 @@ chart_data_color_list
 
 # create chart
 line_chart <- chart_data %>% 
-        ggplot(data = ., aes(x = year, y = value, 
-                             color = factor(color_bin, 
-                                levels = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14")))) +
-        geom_line(size = 1) + 
-        # geom_point(size = 4) + 
-        scale_color_manual(values = chart_data_color_list) +
-        # scale_x_discrete(expand = c(0, 0)) +
-        # scale_y_continuous(breaks = seq(from = 0, to = .4, by = .1), limits = c(-.05, .45), expand = c(-.05, 0)) +
-        # scale_x_continuous(breaks = seq(from = 0, to = .6, by = .1), limits = c(-.05, .65), expand = c(-.05, 0)) +
-        labs(x = "test", y = "test", 
-             title = NULL,
-             caption = NULL, color = "") +
-        # coord_fixed(ratio = 1/.05, clip = "off") +
-        # coord_flip() + 
-        theme_bw() +
-        theme(
-                # plot.background = element_rect(fill = "blue"),
-                plot.margin = unit(c(0, 0, 0, 0), "mm"),
-                plot.caption = element_text(hjust = 0, size = 13, face = "plain", family = "Calibri", 
-                                            color = "#000000", margin = margin(t = 4, r = 0, b = 0, l = 0)),
-                # text = element_text(family = "Calibri", size = 46, face = "plain", color = "#000000"),
-                panel.grid.minor = element_blank(),
-                panel.grid.major.x = element_blank(),
-                panel.grid.major.y = element_blank(),
-                # panel.grid.major.y = element_line(color = "#000000"),
-                panel.border = element_blank(),
-                # panel.grid = element_blank(),
-                # line = element_blank(),
-                # rect = element_blank(),
-                # axis.ticks.y = element_blank(),
-                # axis.ticks.x = element_blank(),
-                axis.ticks.length.y.left = unit(.2, "cm"),
-                axis.ticks.length.x.bottom = unit(.2, "cm"),
-                axis.text.x = element_text(family = "Calibri", face = "plain", size = 9, color = "#000000", 
-                                           margin = margin(t = 5, r = 0, b = 0, l = 0)),
-                axis.text.y = element_text(family = "Calibri", face = "plain", size = 9, color = "#000000", 
-                                           margin = margin(t = 0, r = 5, b = 0, l = 0)),
-                axis.line.x.bottom = element_line(color = "#595959"),
-                axis.line.y.left = element_line(color = "#595959"),
-                axis.title.x = element_text(family = "Calibri", face = "plain", size = 9, color = "#000000", 
-                                            margin = margin(t = 8, r = 0, b = 5, l = 0)),
-                axis.title.y = element_text(family = "Calibri", face = "plain", size = 9, color = "#000000", 
-                                            margin = margin(t = 0, r = 5, b = 0, l = 0)),
-                plot.title = element_text(size = 18, face = "bold", hjust = .5, family = "Calibri", color = "#000000", 
-                                          margin = margin(t = 0, r = 0, b = 10, l = 0, unit = "pt")),
-                legend.position = "bottom",
-                # legend.key.size = unit(2, "mm"), 
-                legend.title = element_text(size = 9, family = "Calibri", face = "plain"),
-                legend.text = element_text(size = 9, family = "Calibri", margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"), 
-                                           hjust = .5)
-                # legend.spacing.y = unit(5.5, "cm"),
-                # legend.key = element_rect(size = 5),
-                # legend.key.size = unit(2, 'lines')
-        ) 
+  ggplot(data = ., aes(x = year, y = value, 
+                       color = factor(color_bin, 
+                                      levels = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14")))) +
+  geom_line(size = 1) + 
+  # geom_point(size = 4) + 
+  scale_color_manual(values = chart_data_color_list) +
+  # scale_x_discrete(expand = c(0, 0)) +
+  # scale_y_continuous(breaks = seq(from = 0, to = .4, by = .1), limits = c(-.05, .45), expand = c(-.05, 0)) +
+  # scale_x_continuous(breaks = seq(from = 0, to = .6, by = .1), limits = c(-.05, .65), expand = c(-.05, 0)) +
+  labs(x = "test", y = "test", 
+       title = NULL,
+       caption = NULL, color = "") +
+  # coord_fixed(ratio = 1/.05, clip = "off") +
+  # coord_flip() + 
+  theme_bw() +
+  theme(
+    # plot.background = element_rect(fill = "blue"),
+    plot.margin = unit(c(0, 0, 0, 0), "mm"),
+    plot.caption = element_text(hjust = 0, size = 13, face = "plain", family = "Calibri", 
+                                color = "#000000", margin = margin(t = 4, r = 0, b = 0, l = 0)),
+    # text = element_text(family = "Calibri", size = 46, face = "plain", color = "#000000"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    # panel.grid.major.y = element_line(color = "#000000"),
+    panel.border = element_blank(),
+    # panel.grid = element_blank(),
+    # line = element_blank(),
+    # rect = element_blank(),
+    # axis.ticks.y = element_blank(),
+    # axis.ticks.x = element_blank(),
+    axis.ticks.length.y.left = unit(.2, "cm"),
+    axis.ticks.length.x.bottom = unit(.2, "cm"),
+    axis.text.x = element_text(family = "Calibri", face = "plain", size = 9, color = "#000000", 
+                               margin = margin(t = 5, r = 0, b = 0, l = 0)),
+    axis.text.y = element_text(family = "Calibri", face = "plain", size = 9, color = "#000000", 
+                               margin = margin(t = 0, r = 5, b = 0, l = 0)),
+    axis.line.x.bottom = element_line(color = "#595959"),
+    axis.line.y.left = element_line(color = "#595959"),
+    axis.title.x = element_text(family = "Calibri", face = "plain", size = 9, color = "#000000", 
+                                margin = margin(t = 8, r = 0, b = 5, l = 0)),
+    axis.title.y = element_text(family = "Calibri", face = "plain", size = 9, color = "#000000", 
+                                margin = margin(t = 0, r = 5, b = 0, l = 0)),
+    plot.title = element_text(size = 18, face = "bold", hjust = .5, family = "Calibri", color = "#000000", 
+                              margin = margin(t = 0, r = 0, b = 10, l = 0, unit = "pt")),
+    legend.position = "bottom",
+    # legend.key.size = unit(2, "mm"), 
+    legend.title = element_text(size = 9, family = "Calibri", face = "plain"),
+    legend.text = element_text(size = 9, family = "Calibri", margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"), 
+                               hjust = .5)
+    # legend.spacing.y = unit(5.5, "cm"),
+    # legend.key = element_rect(size = 5),
+    # legend.key.size = unit(2, 'lines')
+  ) 
 
 
 # inspect
@@ -635,4 +635,3 @@ line_chart
 #////////////////////////////////////////////////////////////////////////////////////
 #////////////////////////////////////////////////////////////////////////////////////
 #////////////////////////////////////////////////////////////////////////////////////
-
