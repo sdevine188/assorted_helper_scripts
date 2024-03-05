@@ -47,8 +47,10 @@ starwars %>% group_by(species) %>% mutate(species_count = n_distinct(row_number(
 
 # summarizing quantiles
 starwars %>% select(mass) %>% skim()
-starwars %>% summarize(quantiles = list(enframe(quantile(x = mass, probs = c(0, .25, .5, .75, 1), na.rm = TRUE)))) %>%
-        unnest()
+starwars %>% reframe(percentile = c("0%", "25%", "50%", "75%", "100%"),
+                     values = quantile(x = mass, probs = c(0, .25, .5, .75, 1), na.rm = TRUE))
+# starwars %>% summarize(quantiles = list(enframe(quantile(x = mass, probs = c(0, .25, .5, .75, 1), na.rm = TRUE)))) %>%
+#         unnest(cols = quantiles)
 
 
 ##########################
