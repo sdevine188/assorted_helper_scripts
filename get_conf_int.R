@@ -23,182 +23,204 @@ library(infer)
 # distribution = "z": point_estimate should be the output of calculate() with stat = "prop" or stat = "diff in props"
 
 get_conf_int_internal <- function(data, var, stat, conf_level = .95, na.rm = TRUE) {
-        
-        # get conf_level_critical_value
-        
-        # https://rpubs.com/lumumba99/1035036#:~:text=To%20get%20critical%20values%20of,in%20the%20standard%20normal%20distribution.
-        
-        conf_level_critical_value <- qnorm(p = (1 - conf_level) / 2, lower.tail = FALSE)
-        
-        
-        #///////////////////////////////////////////////////////////////////////////////////////////////
-        
-        
+ 
         # handle errors
         tryCatch(expr = {
                         
-                        # handle mean conf_int
-                        
-                        if(stat == "mean") {
-                                
-                                # calculate with infer
-                                
-                                # get sample_mean
-                                sample_mean <- data %>%
-                                        specify(response = !!sym(var)) %>%
-                                        calculate(stat = "mean")
-                                
-                                # get sampling_dist
-                                sampling_dist <- data %>%
-                                        specify(response = !!sym(var)) %>%
-                                        assume("t")
-                                
-                                # get output
-                                output <- get_confidence_interval(x = sampling_dist, 
-                                                                  level = conf_level, 
-                                                                  point_estimate = sample_mean) %>%
-                                        rename(conf_int_lower = lower_ci, conf_int_upper = upper_ci) %>%
-                                        mutate(var = var,
-                                               stat = "mean",
-                                               stat_value = sample_mean %>% pull(stat),
-                                               conf_level = conf_level) %>%
-                                        relocate(conf_int_lower, conf_int_upper, .after = stat_value)
-                                
-                                
-                                #////////////////////
-                                
-                                
-                                # calculate manually 
-                                
-                                # https://online.stat.psu.edu/stat500/lesson/5/5.4/5.4.1
-                                # https://online.stat.psu.edu/stat500/lesson/5/5.3/5.3.1
-                                
-                                sample_n <- data %>% filter(!is.na(!!sym(var))) %>% nrow()
-                                
-                                output_manual <- data %>% summarise(sample_sum = sum(!!sym(var), na.rm = na.rm),
-                                                                    sample_mean = mean(!!sym(var), na.rm = na.rm),
-                                                                    sample_standard_error = sd(!!sym(var), na.rm = na.rm) / sqrt(sample_n)) %>%
-                                        mutate(conf_int_lower = sample_mean - (conf_level_critical_value * sample_standard_error),
-                                               conf_int_upper = sample_mean + (conf_level_critical_value * sample_standard_error),
-                                               conf_level_critical_value = conf_level_critical_value,
-                                               margin_of_error = conf_level_critical_value * sample_standard_error,
-                                               sample_n = sample_n, 
-                                               error = NA_character_) %>%
-                                        select(sample_mean, conf_int_lower, conf_int_upper, margin_of_error,
-                                               sample_n, sample_sum, 
-                                               conf_level_critical_value, sample_standard_error, error) %>%
-                                        rename(stat_value_manual = sample_mean, 
-                                               conf_int_lower_manual = conf_int_lower,
-                                               conf_int_upper_manual = conf_int_upper,
-                                               margin_of_error_manual = margin_of_error,
-                                               n_manual = sample_n,
-                                               sum_manual = sample_sum,
-                                               conf_level_critical_value_manual = conf_level_critical_value,
-                                               standard_error_manual = sample_standard_error)
-                                
-                                
-                                #//////////////////////////
-                                
-                                
-                                # join output_manual and return output
-                                return(output %>% bind_cols(., output_manual))
-                        }
-                        
-                        
-                        #/////////////////////////////////////////////////////////////////////////////////////////
-                        
-                        
-                        # handle prop conf_int
-                        
-                        if(stat == "prop") {
-                                
-                                
-                                # calculate with infer
-                                
-                                # note that infer requires categorical variable for prop, 
-                                # so get_conf_int will require 0 or 1 numeric values, with success = 1, and will convert into character in function
-                                
-                                # get sample_prop
-                                sample_prop <- data %>%
-                                        mutate(!!sym(var) := as.character(!!sym(var))) %>%
-                                        specify(response = !!sym(var), success = "1") %>%
-                                        calculate(stat = "prop")
-                                
-                                # get sampling_dist
-                                sampling_dist <- data %>%
-                                        mutate(!!sym(var) := as.character(!!sym(var))) %>%
-                                        specify(response = !!sym(var), success = "1") %>%
-                                        assume("z")
-                                
-                                # get output
-                                output <- get_confidence_interval(x = sampling_dist, 
-                                                                  level = conf_level, 
-                                                                  point_estimate = sample_prop) %>%
-                                        rename(conf_int_lower = lower_ci, conf_int_upper = upper_ci) %>%
-                                        mutate(var = var,
-                                               stat = "prop",
-                                               stat_value = sample_prop %>% pull(stat),
-                                               conf_level = conf_level) %>%
-                                        relocate(conf_int_lower, conf_int_upper, .after = stat_value)
-                                
-                                
-                                #///////////////////////////////////////////////////////////////////////////////////
-                                
-                                
-                                # calculate manually
-                                
-                                # https://online.stat.psu.edu/stat500/lesson/5/5.4/5.4.1
-                                # https://online.stat.psu.edu/stat500/lesson/5/5.3/5.3.1
-                                
-                                sample_n <- data %>% filter(!is.na(!!sym(var))) %>% nrow()
-                                
-                                output_manual <- data %>% summarise(sample_sum = sum(!!sym(var), na.rm = na.rm),
-                                                                    sample_prop = sum(!!sym(var), na.rm = na.rm) / sample_n,
-                                                                    sample_standard_error = sqrt( (sample_prop * (1 - sample_prop)) / sample_n )) %>%
-                                        mutate(conf_int_lower = sample_prop - (conf_level_critical_value * sample_standard_error),
-                                               conf_int_upper = sample_prop + (conf_level_critical_value * sample_standard_error),
-                                               conf_level_critical_value = conf_level_critical_value,
-                                               margin_of_error = conf_level_critical_value * sample_standard_error,
-                                               sample_n = sample_n, 
-                                               error = NA_character_) %>%
-                                        select(sample_prop, conf_int_lower, conf_int_upper, margin_of_error, sample_n, sample_sum, 
-                                               conf_level_critical_value, sample_standard_error, error) %>%
-                                        rename(stat_value_manual = sample_prop, 
-                                               conf_int_lower_manual = conf_int_lower,
-                                               conf_int_upper_manual = conf_int_upper,
-                                               margin_of_error_manual = margin_of_error,
-                                               n_manual = sample_n,
-                                               sum_manual = sample_sum,
-                                               conf_level_critical_value_manual = conf_level_critical_value,
-                                               standard_error_manual = sample_standard_error)
-                                
-                                
-                                #//////////////////////////
-                                
-                                
-                                # join output_manual and return output
-                                return(output %>% bind_cols(., output_manual))
-                        }
-                },
+                # handle mean conf_int
                 
-                error = function(current_error) {
+                if(stat == "mean") {
                         
-                        return(tibble(var = var,
-                                      stat = stat,
-                                      stat_value = NA_real_,
-                                      conf_int_lower = NA_real_,
-                                      conf_int_upper = NA_real_,
-                                      conf_level = NA_real_,
-                                      stat_value_manual = NA_real_,
-                                      conf_int_lower_manual = NA_real_,
-                                      conf_int_upper_manual = NA_real_,
-                                      margin_of_error_manual = NA_real_,
-                                      n_manual = NA_real_,
-                                      sum_manual = NA_real_,
-                                      conf_level_critical_value = NA_real_,
-                                      standard_error_manual = NA_real_,
-                                      error = as.character(current_error)))                
-                        }
+                        # calculate with t.test()
+                        # same as infer
+                        
+                        output <- t.test(x = data %>% select(!!sym(var)), conf.level = conf_level) %>%
+                                tidy() %>%
+                                mutate(var = var,
+                                       stat = "mean",
+                                       conf_level = conf_level) %>%
+                                rename(stat_value = estimate,
+                                       conf_int_lower = conf.low,
+                                       conf_int_upper = conf.high) %>%
+                                select(var, stat, stat_value, conf_int_lower, conf_int_upper, conf_level)
+                        
+                        
+                        #///////////////////////////////////////////////////////////////////////////////////
+                        
+                        # # calculate with infer
+                        # same as t.test()
+                        # 
+                        # # get sample_mean
+                        # sample_mean <- data %>%
+                        #         specify(response = !!sym(var)) %>%
+                        #         calculate(stat = "mean")
+                        # 
+                        # # get sampling_dist
+                        # sampling_dist <- data %>%
+                        #         specify(response = !!sym(var)) %>%
+                        #         assume("t")
+                        # 
+                        # # get output
+                        # output <- get_confidence_interval(x = sampling_dist, 
+                        #                                   level = conf_level, 
+                        #                                   point_estimate = sample_mean) %>%
+                        #         rename(conf_int_lower = lower_ci, conf_int_upper = upper_ci) %>%
+                        #         mutate(var = var,
+                        #                stat = "mean",
+                        #                stat_value = sample_mean %>% pull(stat),
+                        #                conf_level = conf_level) %>%
+                        #         select(var, stat, stat_value, conf_int_lower, conf_int_upper, conf_level)
+                        
+                        
+                        #///////////////////////////////////////////////////////////////////////////////////
+                        
+                        
+                        # additional manual output
+                        
+                        # https://online.stat.psu.edu/stat500/lesson/5/5.4/5.4.1
+                        # https://online.stat.psu.edu/stat500/lesson/5/5.3/5.3.1
+                        
+                        sample_n_valid <- data %>% filter(!is.na(!!sym(var))) %>% nrow()
+                        sample_n_missing <- data %>% filter(is.na(!!sym(var))) %>% nrow()
+                        sample_n_total <- data %>% nrow()
+                        
+                        output_manual <- data %>% summarise(sample_sum = sum(!!sym(var), na.rm = na.rm),
+                                                sample_mean = sample_sum / sample_n_valid) %>%
+                                mutate(sample_n_valid = sample_n_valid,
+                                       sample_n_missing = sample_n_missing,
+                                       sample_n_total = sample_n_total,
+                                       error_message = NA_character_) %>%
+                                select(sample_n_valid, sample_n_missing, sample_n_total, sample_sum, sample_mean, 
+                                       error_message) %>%
+                                rename(stat_value_manual = sample_mean, 
+                                       var_n_valid = sample_n_valid,
+                                       var_n_missing = sample_n_missing,
+                                       var_n_total = sample_n_total,
+                                       var_sum = sample_sum)
+                        
+                        
+                        #///////////////////////////////////////////////////////////////////////////////////
+                        
+                        
+                        # join output_manual and return output
+                        return(output %>% bind_cols(., output_manual))
+                }
+                
+                
+                #/////////////////////////////////////////////////////////////////////////////////////////
+                
+                
+                # handle prop conf_int
+                
+                if(stat == "prop") {
+                        
+                        # # calculate with prop.test()
+                        
+                        # note prop.test is better than using infer, because of wilson score improved ci coverage
+                        # and also prop.test will correctly return 0% for data where var has only 0 values
+                        # but infer will throw error that "1 is not a valid level of {var}" 
+                        
+                        # note that prop.test uses wilson score confidence interval for single proportions
+                        # https://stats.stackexchange.com/questions/183225/confidence-interval-from-rs-prop-test-differs-from-hand-calculation-and-resul
+                        
+                        output <- prop.test(x = data %>% filter(!!sym(var) == 1) %>% nrow(),
+                                            n = data %>% filter(!is.na(!!sym(var))) %>% nrow(),
+                                            conf.level = conf_level) %>% tidy() %>%
+                                mutate(var = var,
+                                       stat = "prop",
+                                       conf_level = conf_level) %>%
+                                rename(stat_value = estimate,
+                                       conf_int_lower = conf.low,
+                                       conf_int_upper = conf.high) %>%
+                                select(var, stat, stat_value, conf_int_lower, conf_int_upper, conf_level)
+                        
+                        
+                        #///////////////////////////////////////////////////////////////////////////////////
+                        
+                        
+                        # # calculate with infer
+                        #
+                        # note prop.test is better than using infer, because of wilson score improved ci coverage
+                        # and also prop.test will correctly return 0% for data where var has only 0 values
+                        # but infer will throw error that "1 is not a valid level of {var}" 
+                        # 
+                        # # note that infer requires categorical variable for prop, 
+                        # # so get_conf_int will require 0 or 1 numeric values, with success = 1, and will convert into character in function
+                        # 
+                        # # get sample_prop
+                        # sample_prop <- data %>%
+                        #         mutate(!!sym(var) := as.character(!!sym(var))) %>%
+                        #         specify(response = !!sym(var), success = "1") %>%
+                        #         calculate(stat = "prop")
+                        # 
+                        # # get sampling_dist
+                        # sampling_dist <- data %>%
+                        #         mutate(!!sym(var) := as.character(!!sym(var))) %>%
+                        #         specify(response = !!sym(var), success = "1") %>%
+                        #         assume("z")
+                        # 
+                        # # get output
+                        # output <- get_confidence_interval(x = sampling_dist, 
+                        #                                   level = conf_level, 
+                        #                                   point_estimate = sample_prop) %>%
+                        #         rename(conf_int_lower = lower_ci, conf_int_upper = upper_ci) %>%
+                        #         mutate(var = var,
+                        #                stat = "prop",
+                        #                stat_value = sample_prop %>% pull(stat),
+                        #                conf_level = conf_level) %>%
+                        #         select(var, stat, stat_value, conf_int_lower, conf_int_upper, conf_level)
+
+                        
+                        #///////////////////////////////////////////////////////////////////////////////////
+                        
+                        
+                        # additional manual output
+                        
+                        # https://online.stat.psu.edu/stat500/lesson/5/5.4/5.4.1
+                        # https://online.stat.psu.edu/stat500/lesson/5/5.3/5.3.1
+                        
+                        sample_n_valid <- data %>% filter(!is.na(!!sym(var))) %>% nrow()
+                        sample_n_missing <- data %>% filter(is.na(!!sym(var))) %>% nrow()
+                        sample_n_total <- data %>% nrow()
+                        
+                        output_manual <- data %>% summarise(sample_sum = sum(!!sym(var), na.rm = na.rm),
+                                                            sample_prop = sample_sum / sample_n_valid) %>%
+                                mutate(sample_n_valid = sample_n_valid,
+                                       sample_n_missing = sample_n_missing,
+                                       sample_n_total = sample_n_total,
+                                       error_message = NA_character_) %>%
+                                select(sample_n_valid, sample_n_missing, sample_n_total, sample_sum, sample_prop, 
+                                       error_message) %>%
+                                rename(stat_value_manual = sample_prop, 
+                                       var_n_valid = sample_n_valid,
+                                       var_n_missing = sample_n_missing,
+                                       var_n_total = sample_n_total,
+                                       var_sum = sample_sum)
+                        
+                        
+                        #///////////////////////////////////////////////////////////////////////////////////
+                        
+                        
+                        # join output_manual and return output
+                        return(output %>% bind_cols(., output_manual))
+                }
+        },
+        
+        error = function(current_error) {
+                
+                return(tibble(var = var,
+                              stat = stat,
+                              stat_value = NA_real_,
+                              conf_int_lower = NA_real_,
+                              conf_int_upper = NA_real_,
+                              conf_level = NA_real_,
+                              var_n_valid = NA_real_,
+                              var_n_missing = NA_real_,
+                              var_n_total = NA_real_,
+                              var_sum = NA_real_,
+                              stat_value_manual = NA_real_,
+                              error_message = as.character(current_error)))  
+                }
         )
 } 
 
@@ -282,6 +304,8 @@ get_conf_int <- function(data, var, stat, conf_level = .95, na.rm = TRUE) {
 
 
 #////////////////////////////////////////////////////////////////////////////////////////////////////
+#////////////////////////////////////////////////////////////////////////////////////////////////////
+#////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 # # inspect
@@ -301,11 +325,12 @@ get_conf_int <- function(data, var, stat, conf_level = .95, na.rm = TRUE) {
 # #///////////////////////////
 # 
 # 
-# # note that infer requires at least two observations or it throws "not enough 'x' observations" error
+# # note that t.test requires at least two observations or it throws "not enough 'x' observations" error
 # starwars %>%
 #         filter(name == "Jabba Desilijic Tiure") %>%
 #         get_conf_int(var = vars(height), stat = "mean", conf_level = .95, na.rm = TRUE) %>%
 #         data.frame()
+# 
 # starwars %>%
 #         filter(name == "Jabba Desilijic Tiure") %>%
 #         bind_rows(.,
@@ -314,7 +339,7 @@ get_conf_int <- function(data, var, stat, conf_level = .95, na.rm = TRUE) {
 #         get_conf_int(var = vars(height), stat = "mean", conf_level = .95, na.rm = TRUE)
 # 
 # 
-# # note that infer requires variation in data when calculating mean
+# # note that t.test requires variation in data when calculating mean
 # # or it throws "data are essentially constant" error
 # starwars %>%
 #         filter(name == "Jabba Desilijic Tiure") %>%
@@ -323,6 +348,7 @@ get_conf_int <- function(data, var, stat, conf_level = .95, na.rm = TRUE) {
 #                           filter(name == "Jabba Desilijic Tiure")) %>%
 #         get_conf_int(var = vars(height), stat = "mean", conf_level = .95, na.rm = TRUE) %>%
 #         data.frame()
+# 
 # starwars %>%
 #         filter(name == "Jabba Desilijic Tiure") %>%
 #         bind_rows(.,
@@ -335,8 +361,15 @@ get_conf_int <- function(data, var, stat, conf_level = .95, na.rm = TRUE) {
 # 
 # 
 # # check stat = mean w grouped tbl
-# starwars %>% group_by(sex) %>% summarize(height_mean = mean(height, na.rm = TRUE))
-# starwars %>% group_by(sex) %>% get_conf_int(var = "height", stat = "mean")
+# starwars %>%
+#         group_by(sex) %>%
+#         summarize(height_mean = mean(height, na.rm = TRUE)) %>%
+#         arrange(height_mean, sex)
+# 
+# starwars %>%
+#         group_by(sex) %>%
+#         get_conf_int(var = "height", stat = "mean") %>%
+#         arrange(stat_value, sex)
 # 
 # 
 # #////////////////////////////
@@ -347,6 +380,7 @@ get_conf_int <- function(data, var, stat, conf_level = .95, na.rm = TRUE) {
 #                   height_mean = mean(height, na.rm = TRUE)) %>%
 #         mutate(height_mean = case_when(n <= 1 ~ NA_real_, TRUE ~ height_mean)) %>%
 #         arrange(height_mean, sex, species)
+# 
 # starwars %>% group_by(sex, species) %>%
 #         get_conf_int(var = "height", stat = "mean") %>%
 #         arrange(stat_value, sex, species)
@@ -355,12 +389,10 @@ get_conf_int <- function(data, var, stat, conf_level = .95, na.rm = TRUE) {
 # #/////////////////////////
 # 
 # 
+# # test error messages w grouped tbl
 # starwars %>%
 #         filter(name == "Jabba Desilijic Tiure") %>%
-#         bind_rows(.,
-#                   starwars %>%
-#                           filter(name == "Jabba Desilijic Tiure")) %>%
-#         group_by(sex) %>%
+#         group_by(sex, species) %>%
 #         get_conf_int(var = vars(height), stat = "mean", conf_level = .95, na.rm = TRUE) %>%
 #         data.frame()
 # 
@@ -369,7 +401,7 @@ get_conf_int <- function(data, var, stat, conf_level = .95, na.rm = TRUE) {
 #         bind_rows(.,
 #                   starwars %>%
 #                           filter(name == "Jabba Desilijic Tiure")) %>%
-#         group_by(sex, species) %>%
+#         group_by(sex) %>%
 #         get_conf_int(var = vars(height), stat = "mean", conf_level = .95, na.rm = TRUE) %>%
 #         data.frame()
 # 
@@ -384,7 +416,8 @@ get_conf_int <- function(data, var, stat, conf_level = .95, na.rm = TRUE) {
 #         mutate(height_over_180 = case_when(height > 180 ~ 1, TRUE ~ 0)) %>%
 #         count(height_over_180) %>%
 #         mutate(height_over_180 = as.character(height_over_180)) %>%
-#         pivot_wider(names_from = height_over_180, names_glue = "height_over_180_{height_over_180}", values_from = n) %>%
+#         pivot_wider(names_from = height_over_180, names_glue = "height_over_180_{height_over_180}",
+#                     values_from = n, values_fill = 0) %>%
 #         mutate(n = height_over_180_0 + height_over_180_1,
 #                 height_over_180_prop = height_over_180_1 / (height_over_180_0 + height_over_180_1))
 # 
@@ -397,23 +430,14 @@ get_conf_int <- function(data, var, stat, conf_level = .95, na.rm = TRUE) {
 # #///////////////////////////
 # 
 # 
-# # note that infer requires at least two observations or it throws "not enough 'x' observations" error
+# # note that prop.test does not require at least two observations or it throws "not enough 'x' observations" error
 # starwars %>%
 #         mutate(height_over_180 = case_when(height > 180 ~ 1, TRUE ~ 0)) %>%
 #         filter(name == "Jabba Desilijic Tiure") %>%
 #         get_conf_int(var = vars(height_over_180), stat = "prop", conf_level = .95, na.rm = TRUE) %>%
 #         data.frame()
-# starwars %>%
-#         mutate(height_over_180 = case_when(height > 180 ~ 1, TRUE ~ 0)) %>%
-#         filter(name == "Jabba Desilijic Tiure") %>%
-#         bind_rows(.,
-#                   starwars %>%
-#                           mutate(height_over_180 = case_when(height > 180 ~ 1, TRUE ~ 0)) %>%
-#                           filter(name == "Ric Olié")) %>%
-#         get_conf_int(var = vars(height_over_180), stat = "prop", conf_level = .95, na.rm = TRUE)
 # 
-# 
-# # note that infer does not requires variation in data when calculating prop
+# # note that prop.test does not require variation in data when calculating prop
 # starwars %>%
 #         mutate(height_over_180 = case_when(height > 180 ~ 1, TRUE ~ 0)) %>%
 #         filter(name == "Jabba Desilijic Tiure") %>%
@@ -421,7 +445,7 @@ get_conf_int <- function(data, var, stat, conf_level = .95, na.rm = TRUE) {
 #                   starwars %>%
 #                           mutate(height_over_180 = case_when(height > 180 ~ 1, TRUE ~ 0)) %>%
 #                           filter(name == "Jabba Desilijic Tiure")) %>%
-#         get_conf_int(var = vars(height_over_180), stat = "mean", conf_level = .95, na.rm = TRUE) %>%
+#         get_conf_int(var = vars(height_over_180), stat = "prop", conf_level = .95, na.rm = TRUE) %>%
 #         data.frame()
 # 
 # 
@@ -434,10 +458,11 @@ get_conf_int <- function(data, var, stat, conf_level = .95, na.rm = TRUE) {
 #         group_by(sex) %>%
 #         count(height_over_180) %>%
 #         mutate(height_over_180 = as.character(height_over_180)) %>%
-#         pivot_wider(names_from = height_over_180, names_glue = "height_over_180_{height_over_180}", values_from = n) %>%
+#         pivot_wider(names_from = height_over_180, names_glue = "height_over_180_{height_over_180}",
+#                     values_from = n, values_fill = 0) %>%
 #         mutate(n = height_over_180_0 + height_over_180_1,
 #                 height_over_180_prop = height_over_180_1 / (height_over_180_0 + height_over_180_1)) %>%
-#         arrange(sex)
+#         arrange(height_over_180_prop, sex)
 # 
 # starwars %>%
 #         mutate(height_over_180 = case_when(height > 180 ~ 1, TRUE ~ 0)) %>%
@@ -450,18 +475,22 @@ get_conf_int <- function(data, var, stat, conf_level = .95, na.rm = TRUE) {
 # #/////////////////////
 # 
 # 
+# # check stat = prop w multiple grouped_tbl
 # starwars %>%
 #         mutate(height_over_180 = case_when(height > 180 ~ 1, TRUE ~ 0)) %>%
 #         group_by(sex, species) %>%
 #         count(height_over_180) %>%
 #         mutate(height_over_180 = as.character(height_over_180)) %>%
-#         pivot_wider(names_from = height_over_180, names_glue = "height_over_180_{height_over_180}", values_from = n) %>%
+#         pivot_wider(names_from = height_over_180, names_glue = "height_over_180_{height_over_180}",
+#                     values_from = n, values_fill = 0) %>%
 #         mutate(n = height_over_180_0 + height_over_180_1,
 #                height_over_180_prop = height_over_180_1 / (height_over_180_0 + height_over_180_1)) %>%
-#         arrange(height_over_180_prop, sex, species)
+#         arrange(sex, species)
 # 
 # starwars %>%
 #         mutate(height_over_180 = case_when(height > 180 ~ 1, TRUE ~ 0)) %>%
 #         group_by(sex, species) %>%
 #         get_conf_int(var = height_over_180, stat = "prop") %>%
-#         arrange(stat_value, sex, species)
+#         arrange(sex, species)
+
+
